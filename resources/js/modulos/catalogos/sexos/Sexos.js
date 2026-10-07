@@ -152,7 +152,7 @@ const Sexos = {
                 ordering: Sexos.config.datatable.ordering,
                 info: false,
                 lengthChange: false,
-                order: [[0, 'asc']],
+                order: [[0, 'desc']],
                 layout: { topStart: null, topEnd: null, bottomStart: null, bottomEnd: null },
                 columns: [
                     { title: 'ID', data: 'id_sexo' },

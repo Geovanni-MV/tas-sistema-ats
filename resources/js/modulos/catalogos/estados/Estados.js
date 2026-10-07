@@ -143,7 +143,7 @@ const Estados = {
                 ordering: Estados.config.datatable.ordering,
                 info: false,
                 lengthChange: false,
-                order: [[1, 'asc']],
+                order: [[1, 'desc']],
                 layout: {
                     topStart: null,
                     topEnd: null,
