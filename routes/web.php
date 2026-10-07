@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Catalogos\SexoController;
+use App\Http\Controllers\Catalogos\EstadoController;
 use Illuminate\Support\Facades\Route;
 
 /*
