@@ -28,6 +28,8 @@ Route::prefix('sistema-ats-tas')->name('sistema-ats-tas.')->group(function () {
 
     Route::prefix('catalogos')->name('catalogos.')->group(function () {
         Route::get('/sexos', [SexoController::class, 'vista'])->name('sexos.index');
+        Route::get('/estados', [EstadoController::class, 'vista'])->name('estados.index');
+
     });
 
     Route::prefix('seguridad')->name('seguridad.')->group(function () {

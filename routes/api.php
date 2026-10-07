@@ -28,6 +28,12 @@ Route::prefix('/v1')->name('api.v1.')->group(function () {
             Route::put('/{idSexo}', [SexoController::class, 'actualizar'])->name('actualizar');
             Route::patch('/{idSexo}/estatus', [SexoController::class, 'cambiarEstatus'])->name('cambiar-estatus');
         });
+        Route::prefix('estados')->name('estados.')->group(function () {
+            Route::get('/', [EstadoController::class, 'obtenerDatos'])->name('obtener-datos');
+            Route::post('/', [EstadoController::class, 'crear'])->name('crear');
+            Route::put('/{idEstado}', [EstadoController::class, 'actualizar'])->name('actualizar');
+            Route::patch('/{idEstado}/estatus', [EstadoController::class, 'cambiarEstatus'])->name('cambiar-estatus');
+        });
     });
 
     Route::prefix('seguridad')->name('seguridad.')->group(function () {
