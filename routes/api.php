@@ -1,8 +1,12 @@
 <?php
 
-use App\Http\Controllers\Catalogos\SexoController;
-use App\Http\Controllers\Catalogos\EstadoController;
+/**ESQUEMA: RECLUTAMIENTO */
+use App\Http\Controllers\Reclutamiento\EmpresaController;
 
+/**ESQUEMA: CATALOGOS */
+use App\Http\Controllers\Catalogos\EstadoController;
+use App\Http\Controllers\Catalogos\SexoController;
+/**ESQUEMA: SEGURIDAD */
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,6 +21,12 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('/v1')->name('api.v1.')->group(function () {
     Route::prefix('reclutamiento')->name('reclutamiento.')->group(function () {
         // Endpoints futuros del módulo Reclutamiento.
+        Route::prefix('empresas')->name('empresas.')->group(function () {
+            Route::get('/', [EmpresaController::class, 'obtenerDatos'])->name('obtener-datos');
+            Route::post('/', [EmpresaController::class, 'crear'])->name('crear');
+            Route::put('/{id_empresa}', [EmpresaController::class, 'actualizar'])->name('actualizar');
+            Route::patch('/{id_empresa}/estatus', [EmpresaController::class, 'cambiarEstatus'])->name('cambiar-estatus');
+        });
     });
 
     Route::prefix('reportes')->name('reportes.')->group(function () {
