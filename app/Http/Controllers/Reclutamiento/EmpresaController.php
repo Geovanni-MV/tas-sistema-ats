@@ -12,16 +12,16 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
-     * Esquema: reclutamiento
-     * Entidad: empresas
-     * 
-     * Responsabilidades:
-     * - Entregar la vista Blade del módulo.
-     * - Recibir, arma y responde peticiones REST.
-     * - Validar la entrada por medio del Validator correspondiente.
-     * - Generar DTO de transferencia.
-     * - Delegar la lógica de negocio al service correspondiente.
-     */
+    * Esquema: reclutamiento
+    * Entidad: empresas
+    * 
+    * Responsabilidades:
+    * - Entregar la vista Blade del módulo.
+    * - Recibir, arma y responde peticiones REST.
+    * - Validar la entrada por medio del Validator correspondiente.
+    * - Generar DTO de transferencia.
+    * - Delegar la lógica de negocio al service correspondiente.
+*/
 
 class EmpresaController extends Controller
 {
