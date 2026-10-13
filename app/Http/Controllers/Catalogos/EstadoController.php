@@ -34,9 +34,9 @@ final class EstadoController extends Controller
     /**
      * Renderiza la vista del catálogo.
      */
-    public function vista(): View
+    public function renderView(): View
     {
-        return view('catalogos.estados.index');
+        return view('modulos.catalogos.estados.index');
     }
 
     /**

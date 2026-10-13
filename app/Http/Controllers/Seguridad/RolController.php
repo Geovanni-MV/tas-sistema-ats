@@ -32,6 +32,16 @@ final class RolController extends Controller
     ) {}
 
     /**
+     * Renderiza únicamente la vista de la entidad
+     * Los datos dinamicos se obtienen posteriormente la API REST.
+     * Los datos estaticos se obtienen en esta funcion y se mandan por params
+     */
+    public function renderView(): View
+    {
+        return view('modulos.seguridad.roles.index');
+    }
+
+    /**
      * Devuelve todos los registros.
      */
     public function obtenerDatos(): JsonResponse

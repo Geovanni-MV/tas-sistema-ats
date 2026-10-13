@@ -41,7 +41,7 @@ class EmpresaController extends Controller
      */
     public function renderView(): View
     {
-        return view('reclutamiento.empresas.index');
+        return view('modulos.reclutamiento.empresas.index');
     }
     /**
      * devuelve todos los registros del catálogo.

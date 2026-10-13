@@ -60,10 +60,11 @@
                     'seguridad' => [
                         'label' => 'Seguridad',
                         'items' => [
-                            ['label' => 'Usuarios', 'href' => '#'],
-                            ['label' => 'Roles', 'href' => '#'],
-                            ['label' => 'Permisos', 'href' => '#'],
-                            ['label' => 'Menú', 'href' => '#'],
+                            ['label' => 'Usuarios', 'href' => route('sistema-ats-tas.seguridad.usuarios.index')],
+                            ['label' => 'Roles', 'href' => route('sistema-ats-tas.seguridad.roles.index')],
+                            ['label' => 'Permisos', 'href' => route('sistema-ats-tas.seguridad.permisos.index')],
+                            ['label' => 'Menú', 'href' => route('sistema-ats-tas.seguridad.menu.index')],
+                            ['label' => 'Configuración de Permisos - Roles', 'href' => route('sistema-ats-tas.seguridad.permisos-roles.index')],
                         ],
                     ],
                 ];

@@ -35,9 +35,9 @@ final class SexoController extends Controller
      * Renderiza únicamente la vista del catálogo.
      * Los datos se obtienen posteriormente mediante la API REST.
      */
-    public function vista(): View
+    public function rendreView(): View
     {
-        return view('catalogos.sexos.index');
+        return view('modulos.catalogos.sexos.index');
     }
 
     /**
