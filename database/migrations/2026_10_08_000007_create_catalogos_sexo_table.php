@@ -11,7 +11,7 @@ return new class extends Migration {
         DB::statement('CREATE SCHEMA IF NOT EXISTS catalogos');
         Schema::create('catalogos.sexo', function (Blueprint $table) {
             $table->bigIncrements('id_sexo');
-            $table->string('nombre_sexo', 150);
+            $table->string('nombre_sexo', 150)->unique();
             $table->text('descripcion')->nullable();
             $table->timestampTz('fecha_registro')->useCurrent();
             $table->timestampTz('fecha_actualizacion')->nullable();
