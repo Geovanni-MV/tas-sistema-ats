@@ -75,17 +75,20 @@ final class SexoController extends Controller
                 'mensaje' => 'Datos registrados correctamente.',
                 'data' => $sexo,
             ], 201);
+
         }catch(ValidationException $e){
             return response()->json([
                 'estatus'=>false,
                 'mensaje'=>'Los datos enviados no son válidos',
                 'errores'=> $e->errors()
             ], 422);
+
         }catch(QueryException $e){
             return response()->json([
                 'estatus'=>false,
                 'mensaje'=>'No fue posible generar el registro.'
             ]);
+
         }catch(Throwable $e){
             return response()->json([
                 'estatus'=>false,
@@ -141,18 +144,12 @@ final class SexoController extends Controller
     /**
      * Activa o desactiva un registro.
      */
-    public function cambiarEstatus(Request $request, int $idSexo): JsonResponse
+    public function cambiarEstatus(Request $request, int $id_sexo): JsonResponse
     {
         try{
-            $datosValidados = $this->validator->validateStatus([
-                ...$request->all(),
-                'id_sexo' => $idSexo,
-            ]);
+            $datosValidados = $this->validator->validateStatus(['id_sexo' => $id_sexo,]);
 
-            $sexo = $this->service->cambiarEstatus(
-                (int) $datosValidados['id_sexo'],
-                (bool) $datosValidados['activo'],
-            );
+            $sexo = $this->service->cambiarEstatus((int) $datosValidados['id_sexo']);
 
             return response()->json([
                 'estatus' => true,
@@ -162,7 +159,7 @@ final class SexoController extends Controller
         }catch(ModelNotFoundException $e){
             return response()->json([
                 'estatus'=>false,
-                'mensaje'=>'No fue posible camiar el estatus'
+                'mensaje'=>'No fue posible cambiar el estatus'
             ], 500);
         }catch(QueryException $e){
             return response()->json([

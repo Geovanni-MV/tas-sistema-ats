@@ -41,8 +41,7 @@ final class SexoValidator
     public function validateStatus(array $data): array
     {
         return Validator::make($data, [
-            'id_sexo' => ['required', 'integer', 'min:1'],
-            'activo' => ['required', 'boolean'],
+            'id_sexo' => ['required', 'integer', 'min:1']
         ])->validate();
     }
 

@@ -51,13 +51,12 @@ final class SexoService
     /**
      * Cambia únicamente el campo activo del registro.
      */
-    public function cambiarEstatus(int $idSexo, bool $activo): Sexo
+    public function cambiarEstatus(int $id_sexo): Sexo
     {
-        $sexo = Sexo::query()->findOrFail($idSexo);
+        $sexo = Sexo::query()->findOrFail($id_sexo);
 
         $sexo->fill([
-            'activo' => $activo,
-            'fecha_actualizacion' => now(),
+            'activo' => !$sexo->activo
         ])->save();
 
         return $sexo->refresh();
