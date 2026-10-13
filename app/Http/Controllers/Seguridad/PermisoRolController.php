@@ -6,8 +6,13 @@ use App\DTO\Seguridad\PermisoRolDTO;
 use App\Http\Controllers\Controller;
 use App\Services\Seguridad\PermisoRolService;
 use App\Validators\Seguridad\PermisoRolValidator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
 /**
  * Esquema: seguridad
@@ -32,15 +37,22 @@ final class PermisoRolController extends Controller
      */
     public function obtenerDatos(Request $request): JsonResponse
     {
-        $filtros = $this->validator->validateFiltros($request->query());
+        try{        
+            $filtros = $this->validator->validateFiltros($request->query());
 
-        return response()->json([
-            'estatus' => true,
-            'mensaje' => 'Asignaciones obtenidas correctamente.',
-            'data' => $this->service->listar(
-                isset($filtros['id_rol']) ? (int) $filtros['id_rol'] : null
-            ),
-        ]);
+            return response()->json([
+                'estatus' => true,
+                'mensaje' => 'Asignaciones obtenidas correctamente.',
+                'data' => $this->service->listar(
+                    isset($filtros['id_rol']) ? (int) $filtros['id_rol'] : null
+                ),
+            ]);
+        }catch(Throwable $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Ocurrió un error interno al obtener los datos.'
+            ]);
+        }
     }
 
     /**
@@ -48,16 +60,36 @@ final class PermisoRolController extends Controller
      */
     public function crear(Request $request): JsonResponse
     {
-        $datos_validados = $this->validator->validateCreate($request->all());
+        try{
+            $datos_validados = $this->validator->validateCreate($request->all());
 
-        $dto = PermisoRolDTO::fromArray($datos_validados);
-        $registro = $this->service->crear($dto);
+            $dto = PermisoRolDTO::fromArray($datos_validados);
+            $registro = $this->service->crear($dto);
 
-        return response()->json([
-            'estatus' => true,
-            'mensaje' => 'Asignación registrada correctamente.',
-            'data' => $registro,
-        ], 201);
+            return response()->json([
+                'estatus' => true,
+                'mensaje' => 'Asignación registrada correctamente.',
+                'data' => $registro,
+            ], 201);
+        }catch(ValidationException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Los datos enviados no son válidos',
+                'errores'=> $e->errors()
+            ], 422);
+
+        }catch(QueryException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'No fue posible generar el registro.'
+            ]);
+
+        }catch(Throwable $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Ocurrió un error interno.'
+            ], 500);
+        }
     }
 
     /**
@@ -65,19 +97,43 @@ final class PermisoRolController extends Controller
      */
     public function actualizar(Request $request, int $id_permiso_rol): JsonResponse
     {
-        $datos_validados = $this->validator->validateUpdate([
-            ...$request->all(),
-            'id_permiso_rol' => $id_permiso_rol,
-        ]);
+        try{        
+            $datos_validados = $this->validator->validateUpdate([
+                ...$request->all(),
+                'id_permiso_rol' => $id_permiso_rol,
+            ]);
 
-        $dto = PermisoRolDTO::fromArray($datos_validados);
-        $registro = $this->service->actualizar($dto);
+            $dto = PermisoRolDTO::fromArray($datos_validados);
+            $registro = $this->service->actualizar($dto);
 
-        return response()->json([
-            'estatus' => true,
-            'mensaje' => 'Asignación actualizada correctamente.',
-            'data' => $registro,
-        ]);
+            return response()->json([
+                'estatus' => true,
+                'mensaje' => 'Asignación actualizada correctamente.',
+                'data' => $registro,
+            ]);
+        }catch(ValidationException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Los datos enviados no son válidos',
+                'errores'=> $e->errors()
+            ], 422);
+        
+        }catch(ModelNotFoundException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'El registro no existe.'
+            ]);
+        }catch(QueryException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'No fue posible actualizar el registro.'
+            ]);
+        }catch(Throwable $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Ocurrió un error interno.'
+            ], 500);
+        }
     }
 
     /**
@@ -85,16 +141,33 @@ final class PermisoRolController extends Controller
      */
     public function cambiarEstatus(int $id_permiso_rol): JsonResponse
     {
-        $datos_validados = $this->validator->validateStatus(['id_permiso_rol' => $id_permiso_rol]);
+        try{
+            $datos_validados = $this->validator->validateStatus(['id_permiso_rol' => $id_permiso_rol]);
 
-        $registro = $this->service->cambiarEstatus((int) $datos_validados['id_permiso_rol']);
+            $registro = $this->service->cambiarEstatus((int) $datos_validados['id_permiso_rol']);
 
-        return response()->json([
-            'estatus' => true,
-            'mensaje' => $registro->activo
-                ? 'Asignación activada correctamente.'
-                : 'Asignación desactivada correctamente.',
-            'data' => $registro,
-        ]);
+            return response()->json([
+                'estatus' => true,
+                'mensaje' => $registro->activo
+                    ? 'Asignación activada correctamente.'
+                    : 'Asignación desactivada correctamente.',
+                'data' => $registro,
+            ]);
+        }catch(ModelNotFoundException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'No fue posible cambiar el estatus'
+            ], 500);
+        }catch(QueryException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'No fue posible cambiar el estatus'
+            ], 500);
+        }catch(Throwable $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Ocurrió un error interno.'
+            ], 500);
+        }
     }
 }

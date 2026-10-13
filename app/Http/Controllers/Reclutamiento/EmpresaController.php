@@ -7,9 +7,13 @@ use App\DTO\Reclutamiento\EmpresaDTO;
 use App\Http\Controllers\Controller;
 use App\Services\Reclutamiento\EmpresaService;
 use App\Validators\Reclutamiento\EmpresaValidator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
 /**
     * Esquema: reclutamiento
@@ -44,11 +48,18 @@ class EmpresaController extends Controller
      */
     public function obtenerDatos(): JsonResponse
     {
-        return response()->json([
-            'estatus' => true,
-            'mensaje' => 'Datos obtenidos correctamente.',
-            'data' => $this->service->listar(),
-        ]);
+        try{        
+            return response()->json([
+                'estatus' => true,
+                'mensaje' => 'Datos obtenidos correctamente.',
+                'data' => $this->service->listar(),
+            ]);
+        }catch(Throwable $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Ocurrió un error interno al obtener los datos.'
+            ]);
+        }
     }
 
     /**
@@ -56,35 +67,80 @@ class EmpresaController extends Controller
      */
     public function crear(Request $request): JsonResponse
     {
+        try{
+            $datos_validados = $this->validator->validateCreate($request->all());
 
-        $datos_validados = $this->validator->validateCreate($request->all());
+            $dto = EmpresaDTO::fromArray($datos_validados);
+            $empresa = $this->service->crear($dto);
+            
+            return response()->json([
+                'estatus' => true,
+                'mensaje' => 'Datos registraods correctamente.',
+                'datta' => $empresa
+            ], 201);
+        }catch(ValidationException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Los datos enviados no son válidos',
+                'errores'=> $e->errors()
+            ], 422);
 
-        $dto = EmpresaDTO::fromArray($datos_validados);
-        $empresa = $this->service->crear($dto);
-        
-        return response()->json([
-            'estatus' => true,
-            'mensaje' => 'Datos registraods correctamente.',
-            'datta' => $empresa
-        ], 201);
+        }catch(QueryException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'No fue posible generar el registro.'
+            ]);
+
+        }catch(Throwable $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Ocurrió un error interno.'
+            ], 500);
+        }
     }
     /**
      * Actualiza registro existente.
      */
     public function actualizar(Request $request, int $id_empresa): JsonResponse
     {
-        $datos_validados = $this->validator->validateUpdate([
-            'id_empresa'=>$id_empresa,
-            ...$request->all()
-        ]);
+        try{
+            $datos_validados = $this->validator->validateUpdate([
+                'id_empresa'=>$id_empresa,
+                ...$request->all()
+            ]);
 
-        $dto = EmpresaDTO::fromArray($datos_validados);
-        $empresa = $this->service->actualizar($dto);
+            $dto = EmpresaDTO::fromArray($datos_validados);
+            $empresa = $this->service->actualizar($dto);
 
-        return response()->json([
-            'estatus' => true,
-            'mensaje' => 'Datos actualizados correctamente.',
-            'data' => $empresa
-        ]);
+            return response()->json([
+                'estatus' => true,
+                'mensaje' => 'Datos actualizados correctamente.',
+                'data' => $empresa
+            ]);
+        }catch(ValidationException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Los datos enviados no son válidos',
+                'errores'=> $e->errors()
+            ], 422);
+        
+        }catch(ModelNotFoundException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'El registro no existe.'
+            ]);
+        }catch(QueryException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'No fue posible actualizar el registro.'
+            ]);
+        }catch(Throwable $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Ocurrió un error interno.'
+            ], 500);
+        }
     }
+
+
 }

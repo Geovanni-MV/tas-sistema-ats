@@ -6,8 +6,13 @@ use App\DTO\Seguridad\UsuarioDTO;
 use App\Http\Controllers\Controller;
 use App\Services\Seguridad\UsuarioService;
 use App\Validators\Seguridad\UsuarioValidator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
 /**
  * Esquema: seguridad
@@ -31,11 +36,18 @@ final class UsuarioController extends Controller
      */
     public function obtenerDatos(): JsonResponse
     {
-        return response()->json([
-            'estatus' => true,
-            'mensaje' => 'Usuarios obtenidos correctamente.',
-            'data' => $this->service->listar(),
-        ]);
+        try{
+            return response()->json([
+                'estatus' => true,
+                'mensaje' => 'Usuarios obtenidos correctamente.',
+                'data' => $this->service->listar(),
+            ]);
+        }catch(Throwable $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Ocurrió un error interno al obtener los datos.'
+            ]);
+        }
     }
 
     /**
@@ -43,16 +55,36 @@ final class UsuarioController extends Controller
      */
     public function crear(Request $request): JsonResponse
     {
-        $datos_validados = $this->validator->validateCreate($request->all());
+        try{        
+            $datos_validados = $this->validator->validateCreate($request->all());
 
-        $dto = UsuarioDTO::fromArray($datos_validados);
-        $usuario = $this->service->crear($dto);
+            $dto = UsuarioDTO::fromArray($datos_validados);
+            $usuario = $this->service->crear($dto);
 
-        return response()->json([
-            'estatus' => true,
-            'mensaje' => 'Usuario registrado correctamente.',
-            'data' => $usuario,
-        ], 201);
+            return response()->json([
+                'estatus' => true,
+                'mensaje' => 'Usuario registrado correctamente.',
+                'data' => $usuario,
+            ], 201);
+        }catch(ValidationException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Los datos enviados no son válidos',
+                'errores'=> $e->errors()
+            ], 422);
+
+        }catch(QueryException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'No fue posible generar el registro.'
+            ]);
+
+        }catch(Throwable $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Ocurrió un error interno.'
+            ], 500);
+        }
     }
 
     /**
@@ -60,19 +92,43 @@ final class UsuarioController extends Controller
      */
     public function actualizar(Request $request, int $id_usuario): JsonResponse
     {
-        $datos_validados = $this->validator->validateUpdate([
-            ...$request->all(),
-            'id_usuario' => $id_usuario,
-        ]);
+        try{        
+            $datos_validados = $this->validator->validateUpdate([
+                ...$request->all(),
+                'id_usuario' => $id_usuario,
+            ]);
 
-        $dto = UsuarioDTO::fromArray($datos_validados);
-        $usuario = $this->service->actualizar($dto);
+            $dto = UsuarioDTO::fromArray($datos_validados);
+            $usuario = $this->service->actualizar($dto);
 
-        return response()->json([
-            'estatus' => true,
-            'mensaje' => 'Usuario actualizado correctamente.',
-            'data' => $usuario,
-        ]);
+            return response()->json([
+                'estatus' => true,
+                'mensaje' => 'Usuario actualizado correctamente.',
+                'data' => $usuario,
+            ]);
+        }catch(ValidationException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Los datos enviados no son válidos',
+                'errores'=> $e->errors()
+            ], 422);
+        
+        }catch(ModelNotFoundException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'El registro no existe.'
+            ]);
+        }catch(QueryException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'No fue posible actualizar el registro.'
+            ]);
+        }catch(Throwable $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Ocurrió un error interno.'
+            ], 500);
+        }
     }
 
     /**
@@ -80,21 +136,45 @@ final class UsuarioController extends Controller
      */
     public function cambiarClave(Request $request, int $id_usuario): JsonResponse
     {
-        $datos_validados = $this->validator->validateClave([
-            ...$request->all(),
-            'id_usuario' => $id_usuario,
-        ]);
+        try{
+            $datos_validados = $this->validator->validateClave([
+                ...$request->all(),
+                'id_usuario' => $id_usuario,
+            ]);
 
-        $usuario = $this->service->cambiarClave(
-            (int) $datos_validados['id_usuario'],
-            (string) $datos_validados['clave']
-        );
+            $usuario = $this->service->cambiarClave(
+                (int) $datos_validados['id_usuario'],
+                (string) $datos_validados['clave']
+            );
 
-        return response()->json([
-            'estatus' => true,
-            'mensaje' => 'Clave actualizada correctamente.',
-            'data' => $usuario,
-        ]);
+            return response()->json([
+                'estatus' => true,
+                'mensaje' => 'Clave actualizada correctamente.',
+                'data' => $usuario,
+            ]);
+        }catch(ValidationException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Los datos enviados no son válidos',
+                'errores'=> $e->errors()
+            ], 422);
+        
+        }catch(ModelNotFoundException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'El registro no existe.'
+            ]);
+        }catch(QueryException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'No fue posible actualizar la clave.'
+            ]);
+        }catch(Throwable $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Ocurrió un error interno.'
+            ], 500);
+        }
     }
 
     /**
@@ -102,16 +182,33 @@ final class UsuarioController extends Controller
      */
     public function cambiarEstatus(int $id_usuario): JsonResponse
     {
-        $datos_validados = $this->validator->validateStatus(['id_usuario' => $id_usuario]);
+        try{
+            $datos_validados = $this->validator->validateStatus(['id_usuario' => $id_usuario]);
 
-        $usuario = $this->service->cambiarEstatus((int) $datos_validados['id_usuario']);
+            $usuario = $this->service->cambiarEstatus((int) $datos_validados['id_usuario']);
 
-        return response()->json([
-            'estatus' => true,
-            'mensaje' => $usuario->activo
-                ? 'Usuario activado correctamente.'
-                : 'Usuario desactivado correctamente.',
-            'data' => $usuario,
-        ]);
+            return response()->json([
+                'estatus' => true,
+                'mensaje' => $usuario->activo
+                    ? 'Usuario activado correctamente.'
+                    : 'Usuario desactivado correctamente.',
+                'data' => $usuario,
+            ]);
+        }catch(ModelNotFoundException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'No fue posible cambiar el estatus'
+            ], 500);
+        }catch(QueryException $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'No fue posible cambiar el estatus'
+            ], 500);
+        }catch(Throwable $e){
+            return response()->json([
+                'estatus'=>false,
+                'mensaje'=>'Ocurrió un error interno.'
+            ], 500);
+        }
     }
 }
