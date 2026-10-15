@@ -27,8 +27,9 @@
                 <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
                 <span>Dashboard</span>
             </a>
-
+            
             @php
+            /*
                 $groups = [
                     'reclutamiento' => [
                         'label' => 'Reclutamiento',
@@ -67,30 +68,82 @@
                             ['label' => 'Configuración de Permisos - Roles', 'href' => route('sistema-ats-tas.seguridad.permisos-roles.index')],
                         ],
                     ],
-                ];
+                ];*/
             @endphp
 
-            @foreach ($groups as $key => $group)
+            @foreach ($data['menu'] as $item)
 
                 <div class="mb-2">
 
-                    <button type="button" data-collapse-button="{{ $key }}" class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700">
-                        <span>{{ $group['label'] }}</span>
-                        <span data-collapse-icon="{{ $key }}" class="text-slate-400 transition-transform">⌄</span>
-                    </button>
+                    @if (!empty($item['hijos']))
 
-                    <div data-collapse-panel="{{ $key }}" class="ml-3 mt-1 hidden space-y-1 border-l border-slate-200 pl-3">
+                        <button
+                            type="button"
+                            data-collapse-button="{{ $item['id_menu'] }}"
+                            class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+                        >
+                            <span class="flex items-center gap-3">
 
-                        @foreach ($group['items'] as $item)
+                                @if (!empty($item['icono_clase']))
+                                    <i class="{{ $item['icono_clase'] }}"></i>
+                                @endif
 
-                            <a href="{{ $item['href'] }}" class="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-600 transition hover:bg-blue-50 hover:text-blue-700">
-                                <span class="h-1.5 w-1.5 rounded-full bg-slate-300 group-hover:bg-blue-500"></span>
-                                <span>{{ $item['label'] }}</span>
-                            </a>
+                                <span>
+                                    {{ $item['nombre_menu'] }}
+                                </span>
 
-                        @endforeach
+                            </span>
 
-                    </div>
+                            <span
+                                data-collapse-icon="{{ $item['id_menu'] }}"
+                                class="text-slate-400 transition-transform"
+                            >
+                                ⌄
+                            </span>
+                        </button>
+
+                        <div
+                            data-collapse-panel="{{ $item['id_menu'] }}"
+                            class="ml-3 mt-1 hidden space-y-1 border-l border-slate-200 pl-3"
+                        >
+
+                            @foreach ($item['hijos'] as $hijo)
+
+                                <a
+                                    href="{{ url($hijo['ruta']) }}"
+                                    class="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-600 transition hover:bg-blue-50 hover:text-blue-700"
+                                >
+
+                                    <span class="h-1.5 w-1.5 rounded-full bg-slate-300 group-hover:bg-blue-500"></span>
+
+                                    <span>
+                                        {{ $hijo['nombre_menu'] }}
+                                    </span>
+
+                                </a>
+
+                            @endforeach
+
+                        </div>
+
+                    @else
+
+                        <a
+                            href="{{ url($item['ruta']) }}"
+                            class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+                        >
+
+                            @if (!empty($item['icono_clase']))
+                                <i class="{{ $item['icono_clase'] }}"></i>
+                            @endif
+
+                            <span>
+                                {{ $item['nombre_menu'] }}
+                            </span>
+
+                        </a>
+
+                    @endif
 
                 </div>
 
@@ -130,8 +183,8 @@
                 </div>
 
                 <div class="hidden text-left md:block">
-                    <div class="text-sm font-semibold text-slate-900">Admin Sistema</div>
-                    <div class="text-xs text-slate-500">Administrador</div>
+                    <div class="text-sm font-semibold text-slate-900">{{ $data['usuario']['nombres'] }}</div>
+                    <div class="text-xs text-slate-500">{{ $data['usuario']['rol']['nombre_rol'] }}</div>
                 </div>
 
                 <button type="button" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50">
