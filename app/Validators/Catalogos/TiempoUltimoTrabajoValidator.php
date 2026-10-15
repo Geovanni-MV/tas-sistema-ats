@@ -18,7 +18,7 @@ final class TiempoUltimoTrabajoValidator
         return Validator::make($data, [
             'nombre_tiempo_ultimo_trabajo' => $this->reglasNombre(),
             'descripcion' => ['nullable', 'string'],
-            'activo' => ['sometimes', 'boolean'],
+            
         ], $this->mensajes())->validate();
     }
 
@@ -44,7 +44,7 @@ final class TiempoUltimoTrabajoValidator
     {
         return Validator::make($data, [
             'id_tiempo_ultimo_trabajo' => ['required', 'integer', 'min:1'],
-            'activo' => ['required', 'boolean'],
+            
         ])->validate();
     }
 

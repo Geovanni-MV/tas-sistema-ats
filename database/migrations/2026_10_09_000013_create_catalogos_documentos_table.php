@@ -14,7 +14,6 @@ return new class extends Migration
             $table->bigIncrements('id_documento');
             $table->string('nombre_documento', 150)->unique();
             $table->boolean('requiere_ambos_lados')->default(false);
-            $table->boolean('permite_captura_texto')->default(false);
             $table->smallInteger('maximo_archivos')->default(1);
             $table->text('descripcion')->nullable();
             $table->timestampTz('fecha_registro')->useCurrent();

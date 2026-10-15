@@ -18,7 +18,7 @@ final class ModalidadValidator
         return Validator::make($data, [
             'nombre_modalidad' => $this->reglasNombre(),
             'descripcion' => ['nullable', 'string'],
-            'activo' => ['sometimes', 'boolean'],
+            
         ], $this->mensajes())->validate();
     }
 
@@ -44,7 +44,7 @@ final class ModalidadValidator
     {
         return Validator::make($data, [
             'id_modalidad' => ['required', 'integer', 'min:1'],
-            'activo' => ['required', 'boolean'],
+            
         ])->validate();
     }
 

@@ -2,7 +2,7 @@
 
 namespace App\Validators\Catalogos;
 
-use App\Models\Catalogos\Estado;
+use App\Models\Catalogos\EstadoModel;
 use Closure;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -18,7 +18,7 @@ final class EstadoValidator
         return Validator::make($data, [
             'nombre_estado' => $this->reglasNombre(),
             'clave_estado' => $this->reglasClave(),
-            'activo' => ['sometimes', 'boolean'],
+            
         ], $this->mensajes())->validate();
     }
 
@@ -43,7 +43,7 @@ final class EstadoValidator
     {
         return Validator::make($data, [
             'id_estado' => ['required', 'integer', 'min:1'],
-            'activo' => ['required', 'boolean'],
+            
         ])->validate();
     }
 
@@ -83,7 +83,7 @@ final class EstadoValidator
         ) use ($columna, $etiqueta, $idExcluido): void {
             $normalizado = mb_strtolower(trim((string) $valor));
 
-            $existe = Estado::query()
+            $existe = EstadoModel::query()
                 ->whereRaw("LOWER(TRIM({$columna})) = ?", [$normalizado])
                 ->when(
                     $idExcluido,

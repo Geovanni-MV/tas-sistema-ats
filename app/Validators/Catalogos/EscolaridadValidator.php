@@ -17,8 +17,7 @@ final class EscolaridadValidator
     {
         return Validator::make($data, [
             'nombre_escolaridad' => $this->reglasNombre(),
-            'descripcion' => ['required', 'string'],
-            'activo' => ['sometimes', 'boolean'],
+            'descripcion' => ['required', 'string']
         ], $this->mensajes())->validate();
     }
 
@@ -43,8 +42,7 @@ final class EscolaridadValidator
     public function validateStatus(array $data): array
     {
         return Validator::make($data, [
-            'id_escolaridad' => ['required', 'integer', 'min:1'],
-            'activo' => ['required', 'boolean'],
+            'id_escolaridad' => ['required', 'integer', 'min:1']
         ])->validate();
     }
 

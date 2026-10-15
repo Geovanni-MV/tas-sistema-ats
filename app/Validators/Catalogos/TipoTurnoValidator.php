@@ -18,7 +18,7 @@ final class TipoTurnoValidator
         return Validator::make($data, [
             'nombre_tipo_turno' => $this->reglasNombre(),
             'descripcion' => ['nullable', 'string'],
-            'activo' => ['sometimes', 'boolean'],
+            
         ], $this->mensajes())->validate();
     }
 
@@ -44,7 +44,7 @@ final class TipoTurnoValidator
     {
         return Validator::make($data, [
             'id_tipo_turno' => ['required', 'integer', 'min:1'],
-            'activo' => ['required', 'boolean'],
+            
         ])->validate();
     }
 

@@ -8,19 +8,17 @@ namespace App\DTO\Catalogos;
 final readonly class EstadoCivilDTO
 {
     public function __construct(
-        public ?int $idEstadoCivil,
-        public string $nombreEstadoCivil,
-        public ?string $descripcion,
-        public bool $activo = true,
+        public ?int $id_estado_civil,
+        public string $nombre_estado_civil,
+        public ?string $descripcion
     ) {}
 
     public static function fromArray(array $data): self
     {
         return new self(
-            idEstadoCivil: isset($data['id_estado_civil']) ? (int) $data['id_estado_civil'] : null,
-            nombreEstadoCivil: trim((string) ($data['nombre_estado_civil'] ?? '')),
-            descripcion: isset($data['descripcion']) && trim((string) $data['descripcion']) !== '' ? trim((string) $data['descripcion']) : null,
-            activo: array_key_exists('activo', $data) ? (bool) $data['activo'] : true,
+            id_estado_civil: isset($data['id_estado_civil']) ? (int) $data['id_estado_civil'] : null,
+            nombre_estado_civil: trim((string) ($data['nombre_estado_civil'] ?? '')),
+            descripcion: isset($data['descripcion']) && trim((string) $data['descripcion']) !== '' ? trim((string) $data['descripcion']) : null
         );
     }
 }

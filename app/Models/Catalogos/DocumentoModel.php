@@ -11,12 +11,13 @@ class DocumentoModel extends Model
 {
     protected $table = 'catalogos.documentos';
     protected $primaryKey = 'id_documento';
-    public $timestamps = false;
+    public $timestamps = true;
+    CONST CREATED_AT = 'fecha_registro';
+    CONST UPDATED_AT = 'fecha_actualizacion';
 
     protected $fillable = [
         'nombre_documento',
         'requiere_ambos_lados',
-        'permite_captura_texto',
         'maximo_archivos',
         'descripcion',
         'fecha_actualizacion',
@@ -25,7 +26,6 @@ class DocumentoModel extends Model
 
     protected $casts = [
         'requiere_ambos_lados' => 'boolean',
-        'permite_captura_texto' => 'boolean',
         'maximo_archivos' => 'integer',
         'activo' => 'boolean',
         'fecha_registro' => 'datetime',

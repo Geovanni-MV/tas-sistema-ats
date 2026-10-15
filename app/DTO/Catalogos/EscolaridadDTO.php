@@ -8,19 +8,17 @@ namespace App\DTO\Catalogos;
 final readonly class EscolaridadDTO
 {
     public function __construct(
-        public ?int $idEscolaridad,
-        public string $nombreEscolaridad,
-        public string $descripcion,
-        public bool $activo = true,
+        public ?int $id_escolaridad,
+        public string $nombre_escolaridad,
+        public string $descripcion
     ) {}
 
     public static function fromArray(array $data): self
     {
         return new self(
-            idEscolaridad: isset($data['id_escolaridad']) ? (int) $data['id_escolaridad'] : null,
-            nombreEscolaridad: trim((string) ($data['nombre_escolaridad'] ?? '')),
-            descripcion: trim((string) ($data['descripcion'] ?? '')),
-            activo: array_key_exists('activo', $data) ? (bool) $data['activo'] : true,
+            id_escolaridad: isset($data['id_escolaridad']) ? (int) $data['id_escolaridad'] : null,
+            nombre_escolaridad: trim((string) ($data['nombre_escolaridad'] ?? '')),
+            descripcion: trim((string) ($data['descripcion'] ?? ''))
         );
     }
 }

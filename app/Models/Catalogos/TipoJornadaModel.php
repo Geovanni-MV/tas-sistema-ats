@@ -11,7 +11,10 @@ class TipoJornadaModel extends Model
 {
     protected $table = 'catalogos.tipos_jornada';
     protected $primaryKey = 'id_tipo_jornada';
-    public $timestamps = false;
+    
+    public $timestamps = true;
+    CONST CREATED_AT = 'fecha_registro';
+    CONST UPDATED_AT = 'fecha_actualizacion';
 
     protected $fillable = [
         'nombre_tipo_jornada',

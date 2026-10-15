@@ -18,7 +18,7 @@ final class EstadoCivilValidator
         return Validator::make($data, [
             'nombre_estado_civil' => $this->reglasNombre(),
             'descripcion' => ['nullable', 'string'],
-            'activo' => ['sometimes', 'boolean'],
+            
         ], $this->mensajes())->validate();
     }
 
@@ -44,7 +44,7 @@ final class EstadoCivilValidator
     {
         return Validator::make($data, [
             'id_estado_civil' => ['required', 'integer', 'min:1'],
-            'activo' => ['required', 'boolean'],
+            
         ])->validate();
     }
 

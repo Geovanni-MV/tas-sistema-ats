@@ -24,13 +24,13 @@ final class TipoTurnoService
      */
     public function crear(TipoTurnoDTO $dto): TipoTurnoModel
     {
-        $tipoTurno = TipoTurnoModel::query()->create([
-            'nombre_tipo_turno' => $dto->nombreTipoTurno,
+        $tipo_turno = TipoTurnoModel::query()->create([
+            'nombre_tipo_turno' => $dto->nombre_tipo_turno,
             'descripcion' => $dto->descripcion,
-            'activo' => $dto->activo,
+            
         ]);
 
-        return $tipoTurno->refresh();
+        return $tipo_turno->refresh();
     }
 
     /**
@@ -39,29 +39,29 @@ final class TipoTurnoService
      */
     public function actualizar(TipoTurnoDTO $dto): TipoTurnoModel
     {
-        $tipoTurno = TipoTurnoModel::query()->findOrFail($dto->idTipoTurno);
+        $tipo_turno = TipoTurnoModel::query()->findOrFail($dto->id_tipo_turno);
 
-        $tipoTurno->fill([
-            'nombre_tipo_turno' => $dto->nombreTipoTurno,
+        $tipo_turno->fill([
+            'nombre_tipo_turno' => $dto->nombre_tipo_turno,
             'descripcion' => $dto->descripcion,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
-        return $tipoTurno->refresh();
+        return $tipo_turno->refresh();
     }
 
     /**
      * Cambia únicamente el campo activo del registro.
      */
-    public function cambiarEstatus(int $idTipoTurno, bool $activo): TipoTurnoModel
+    public function cambiarEstatus(int $idTipoTurno): TipoTurnoModel
     {
-        $tipoTurno = TipoTurnoModel::query()->findOrFail($idTipoTurno);
+        $tipo_turno = TipoTurnoModel::query()->findOrFail($idTipoTurno);
 
-        $tipoTurno->fill([
-            'activo' => $activo,
-            'fecha_actualizacion' => now(),
+        $tipo_turno->fill([
+            'activo' => !$tipo_turno->activo,
+            
         ])->save();
 
-        return $tipoTurno->refresh();
+        return $tipo_turno->refresh();
     }
 }

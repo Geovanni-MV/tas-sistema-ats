@@ -27,10 +27,9 @@ final class LocalidadService
     public function crear(LocalidadDTO $dto): LocalidadModel
     {
         $localidad = LocalidadModel::query()->create([
-            'id_estado' => $dto->idEstado,
-            'nombre_localidad' => $dto->nombreLocalidad,
-            'codigo_postal' => $dto->codigoPostal,
-            'activo' => $dto->activo,
+            'id_estado' => $dto->id_estado,
+            'nombre_localidad' => $dto->nombre_localidad,
+            'codigo_postal' => $dto->codigo_postal
         ]);
 
         return $localidad->refresh()->load(self::RELACIONES);
@@ -42,13 +41,13 @@ final class LocalidadService
      */
     public function actualizar(LocalidadDTO $dto): LocalidadModel
     {
-        $localidad = LocalidadModel::query()->findOrFail($dto->idLocalidad);
+        $localidad = LocalidadModel::query()->findOrFail($dto->id_localidad);
 
         $localidad->fill([
-            'id_estado' => $dto->idEstado,
-            'nombre_localidad' => $dto->nombreLocalidad,
-            'codigo_postal' => $dto->codigoPostal,
-            'fecha_actualizacion' => now(),
+            'id_estado' => $dto->id_estado,
+            'nombre_localidad' => $dto->nombre_localidad,
+            'codigo_postal' => $dto->codigo_postal,
+            
         ])->save();
 
         return $localidad->refresh()->load(self::RELACIONES);
@@ -57,13 +56,12 @@ final class LocalidadService
     /**
      * Cambia únicamente el campo activo del registro.
      */
-    public function cambiarEstatus(int $idLocalidad, bool $activo): LocalidadModel
+    public function cambiarEstatus(int $id_localidad): LocalidadModel
     {
-        $localidad = LocalidadModel::query()->findOrFail($idLocalidad);
+        $localidad = LocalidadModel::query()->findOrFail($id_localidad);
 
         $localidad->fill([
-            'activo' => $activo,
-            'fecha_actualizacion' => now(),
+            'activo' => !$localidad->activo,
         ])->save();
 
         return $localidad->refresh()->load(self::RELACIONES);

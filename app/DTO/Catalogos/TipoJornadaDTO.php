@@ -8,8 +8,8 @@ namespace App\DTO\Catalogos;
 final readonly class TipoJornadaDTO
 {
     public function __construct(
-        public ?int $idTipoJornada,
-        public string $nombreTipoJornada,
+        public ?int $id_tipo_jornada,
+        public string $nombre_tipo_jornada,
         public ?string $descripcion,
         public bool $activo = true,
     ) {}
@@ -17,8 +17,8 @@ final readonly class TipoJornadaDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            idTipoJornada: isset($data['id_tipo_jornada']) ? (int) $data['id_tipo_jornada'] : null,
-            nombreTipoJornada: trim((string) ($data['nombre_tipo_jornada'] ?? '')),
+            id_tipo_jornada: isset($data['id_tipo_jornada']) ? (int) $data['id_tipo_jornada'] : null,
+            nombre_tipo_jornada: trim((string) ($data['nombre_tipo_jornada'] ?? '')),
             descripcion: isset($data['descripcion']) && trim((string) $data['descripcion']) !== '' ? trim((string) $data['descripcion']) : null,
             activo: array_key_exists('activo', $data) ? (bool) $data['activo'] : true,
         );

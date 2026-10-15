@@ -25,9 +25,9 @@ final class ModalidadService
     public function crear(ModalidadDTO $dto): ModalidadModel
     {
         $modalidad = ModalidadModel::query()->create([
-            'nombre_modalidad' => $dto->nombreModalidad,
+            'nombre_modalidad' => $dto->nombre_modalidad,
             'descripcion' => $dto->descripcion,
-            'activo' => $dto->activo,
+            
         ]);
 
         return $modalidad->refresh();
@@ -39,12 +39,12 @@ final class ModalidadService
      */
     public function actualizar(ModalidadDTO $dto): ModalidadModel
     {
-        $modalidad = ModalidadModel::query()->findOrFail($dto->idModalidad);
+        $modalidad = ModalidadModel::query()->findOrFail($dto->id_modalidad);
 
         $modalidad->fill([
-            'nombre_modalidad' => $dto->nombreModalidad,
+            'nombre_modalidad' => $dto->nombre_modalidad,
             'descripcion' => $dto->descripcion,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $modalidad->refresh();
@@ -53,13 +53,13 @@ final class ModalidadService
     /**
      * Cambia únicamente el campo activo del registro.
      */
-    public function cambiarEstatus(int $idModalidad, bool $activo): ModalidadModel
+    public function cambiarEstatus(int $id_modalidad): ModalidadModel
     {
-        $modalidad = ModalidadModel::query()->findOrFail($idModalidad);
+        $modalidad = ModalidadModel::query()->findOrFail($id_modalidad);
 
         $modalidad->fill([
-            'activo' => $activo,
-            'fecha_actualizacion' => now(),
+            'activo' => !$modalidad->activo,
+            
         ])->save();
 
         return $modalidad->refresh();

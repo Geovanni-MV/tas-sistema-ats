@@ -11,7 +11,9 @@ class EstadoCivilModel extends Model
 {
     protected $table = 'catalogos.estados_civiles';
     protected $primaryKey = 'id_estado_civil';
-    public $timestamps = false;
+    public $timestamps = true;
+    CONST CREATED_AT = 'fecha_registro';
+    CONST UPDATED_AT = 'fecha_actualizacion';
 
     protected $fillable = [
         'nombre_estado_civil',

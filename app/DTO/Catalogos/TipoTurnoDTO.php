@@ -8,19 +8,17 @@ namespace App\DTO\Catalogos;
 final readonly class TipoTurnoDTO
 {
     public function __construct(
-        public ?int $idTipoTurno,
-        public string $nombreTipoTurno,
-        public ?string $descripcion,
-        public bool $activo = true,
+        public ?int $id_tipo_turno,
+        public string $nombre_tipo_turno,
+        public ?string $descripcion
     ) {}
 
     public static function fromArray(array $data): self
     {
         return new self(
-            idTipoTurno: isset($data['id_tipo_turno']) ? (int) $data['id_tipo_turno'] : null,
-            nombreTipoTurno: trim((string) ($data['nombre_tipo_turno'] ?? '')),
-            descripcion: isset($data['descripcion']) && trim((string) $data['descripcion']) !== '' ? trim((string) $data['descripcion']) : null,
-            activo: array_key_exists('activo', $data) ? (bool) $data['activo'] : true,
+            id_tipo_turno: isset($data['id_tipo_turno']) ? (int) $data['id_tipo_turno'] : null,
+            nombre_tipo_turno: trim((string) ($data['nombre_tipo_turno'] ?? '')),
+            descripcion: isset($data['descripcion']) && trim((string) $data['descripcion']) !== '' ? trim((string) $data['descripcion']) : null
         );
     }
 }

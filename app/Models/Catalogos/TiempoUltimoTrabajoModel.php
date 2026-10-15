@@ -11,7 +11,10 @@ class TiempoUltimoTrabajoModel extends Model
 {
     protected $table = 'catalogos.tiempos_ultimo_trabajo';
     protected $primaryKey = 'id_tiempo_ultimo_trabajo';
-    public $timestamps = false;
+    
+    public $timestamps = true;
+    CONST CREATED_AT = 'fecha_registro';
+    CONST UPDATED_AT = 'fecha_actualizacion';
 
     protected $fillable = [
         'nombre_tiempo_ultimo_trabajo',

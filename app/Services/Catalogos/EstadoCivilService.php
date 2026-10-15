@@ -24,13 +24,12 @@ final class EstadoCivilService
      */
     public function crear(EstadoCivilDTO $dto): EstadoCivilModel
     {
-        $estadoCivil = EstadoCivilModel::query()->create([
-            'nombre_estado_civil' => $dto->nombreEstadoCivil,
-            'descripcion' => $dto->descripcion,
-            'activo' => $dto->activo,
+        $estado_civil = EstadoCivilModel::query()->create([
+            'nombre_estado_civil' => $dto->nombre_estado_civil,
+            'descripcion' => $dto->descripcion
         ]);
 
-        return $estadoCivil->refresh();
+        return $estado_civil->refresh();
     }
 
     /**
@@ -39,29 +38,27 @@ final class EstadoCivilService
      */
     public function actualizar(EstadoCivilDTO $dto): EstadoCivilModel
     {
-        $estadoCivil = EstadoCivilModel::query()->findOrFail($dto->idEstadoCivil);
+        $estado_civil = EstadoCivilModel::query()->findOrFail($dto->id_estado_civil);
 
-        $estadoCivil->fill([
-            'nombre_estado_civil' => $dto->nombreEstadoCivil,
-            'descripcion' => $dto->descripcion,
-            'fecha_actualizacion' => now(),
+        $estado_civil->fill([
+            'nombre_estado_civil' => $dto->nombre_estado_civil,
+            'descripcion' => $dto->descripcion
         ])->save();
 
-        return $estadoCivil->refresh();
+        return $estado_civil->refresh();
     }
 
     /**
      * Cambia únicamente el campo activo del registro.
      */
-    public function cambiarEstatus(int $idEstadoCivil, bool $activo): EstadoCivilModel
+    public function cambiarEstatus(int $id_estado_civil): EstadoCivilModel
     {
-        $estadoCivil = EstadoCivilModel::query()->findOrFail($idEstadoCivil);
+        $estado_civil = EstadoCivilModel::query()->findOrFail($id_estado_civil);
 
-        $estadoCivil->fill([
-            'activo' => $activo,
-            'fecha_actualizacion' => now(),
+        $estado_civil->fill([
+            'activo' => !$estado_civil->activo
         ])->save();
 
-        return $estadoCivil->refresh();
+        return $estado_civil->refresh();
     }
 }

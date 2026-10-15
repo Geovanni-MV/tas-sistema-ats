@@ -8,19 +8,17 @@ namespace App\DTO\Catalogos;
 final readonly class ModalidadDTO
 {
     public function __construct(
-        public ?int $idModalidad,
-        public string $nombreModalidad,
-        public ?string $descripcion,
-        public bool $activo = true,
+        public ?int $id_modalidad,
+        public string $nombre_modalidad,
+        public ?string $descripcion
     ) {}
 
     public static function fromArray(array $data): self
     {
         return new self(
-            idModalidad: isset($data['id_modalidad']) ? (int) $data['id_modalidad'] : null,
-            nombreModalidad: trim((string) ($data['nombre_modalidad'] ?? '')),
-            descripcion: isset($data['descripcion']) && trim((string) $data['descripcion']) !== '' ? trim((string) $data['descripcion']) : null,
-            activo: array_key_exists('activo', $data) ? (bool) $data['activo'] : true,
+            id_modalidad: isset($data['id_modalidad']) ? (int) $data['id_modalidad'] : null,
+            nombre_modalidad: trim((string) ($data['nombre_modalidad'] ?? '')),
+            descripcion: isset($data['descripcion']) && trim((string) $data['descripcion']) !== '' ? trim((string) $data['descripcion']) : null
         );
     }
 }

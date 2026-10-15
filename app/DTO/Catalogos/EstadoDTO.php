@@ -8,19 +8,17 @@ namespace App\DTO\Catalogos;
 final readonly class EstadoDTO
 {
     public function __construct(
-        public ?int $idEstado,
-        public string $nombreEstado,
-        public string $claveEstado,
-        public bool $activo = true,
+        public ?int $id_estado,
+        public string $nombre_estado,
+        public string $clave_estado
     ) {}
 
     public static function fromArray(array $data): self
     {
         return new self(
-            idEstado: isset($data['id_estado']) ? (int) $data['id_estado'] : null,
-            nombreEstado: trim((string) ($data['nombre_estado'] ?? '')),
-            claveEstado: mb_strtoupper(trim((string) ($data['clave_estado'] ?? ''))),
-            activo: array_key_exists('activo', $data) ? (bool) $data['activo'] : true,
+            id_estado: isset($data['id_estado']) ? (int) $data['id_estado'] : null,
+            nombre_estado: trim((string) ($data['nombre_estado'] ?? '')),
+            clave_estado: mb_strtoupper(trim((string) ($data['clave_estado'] ?? '')))
         );
     }
 }

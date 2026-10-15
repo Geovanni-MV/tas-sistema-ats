@@ -11,7 +11,10 @@ class ModalidadModel extends Model
 {
     protected $table = 'catalogos.modalidades';
     protected $primaryKey = 'id_modalidad';
-    public $timestamps = false;
+    
+    public $timestamps = true;
+    CONST CREATED_AT = 'fecha_registro';
+    CONST UPDATED_AT = 'fecha_actualizacion';
 
     protected $fillable = [
         'nombre_modalidad',

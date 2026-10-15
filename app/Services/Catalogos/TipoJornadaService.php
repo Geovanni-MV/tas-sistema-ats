@@ -24,44 +24,44 @@ final class TipoJornadaService
      */
     public function crear(TipoJornadaDTO $dto): TipoJornadaModel
     {
-        $tipoJornada = TipoJornadaModel::query()->create([
-            'nombre_tipo_jornada' => $dto->nombreTipoJornada,
+        $tipo_jornada = TipoJornadaModel::query()->create([
+            'nombre_tipo_jornada' => $dto->nombre_tipo_jornada,
             'descripcion' => $dto->descripcion,
-            'activo' => $dto->activo,
+            
         ]);
 
-        return $tipoJornada->refresh();
+        return $tipo_jornada->refresh();
     }
 
     /**
      * Actualiza los datos editables de un registro existente.
      * El campo "activo" no se modifica aquí; se gestiona con cambiarEstatus().
-     */
+    */
     public function actualizar(TipoJornadaDTO $dto): TipoJornadaModel
     {
-        $tipoJornada = TipoJornadaModel::query()->findOrFail($dto->idTipoJornada);
+        $tipo_jornada = TipoJornadaModel::query()->findOrFail($dto->id_tipo_jornada);
 
-        $tipoJornada->fill([
-            'nombre_tipo_jornada' => $dto->nombreTipoJornada,
+        $tipo_jornada->fill([
+            'nombre_tipo_jornada' => $dto->nombre_tipo_jornada,
             'descripcion' => $dto->descripcion,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
-        return $tipoJornada->refresh();
+        return $tipo_jornada->refresh();
     }
 
     /**
      * Cambia únicamente el campo activo del registro.
      */
-    public function cambiarEstatus(int $idTipoJornada, bool $activo): TipoJornadaModel
+    public function cambiarEstatus(int $idTipoJornada): TipoJornadaModel
     {
-        $tipoJornada = TipoJornadaModel::query()->findOrFail($idTipoJornada);
+        $tipo_jornada = TipoJornadaModel::query()->findOrFail($idTipoJornada);
 
-        $tipoJornada->fill([
-            'activo' => $activo,
-            'fecha_actualizacion' => now(),
+        $tipo_jornada->fill([
+            'activo' => !$tipo_jornada->activo,
+            
         ])->save();
 
-        return $tipoJornada->refresh();
+        return $tipo_jornada->refresh();
     }
 }

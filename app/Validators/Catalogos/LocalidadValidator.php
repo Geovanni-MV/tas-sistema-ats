@@ -2,7 +2,7 @@
 
 namespace App\Validators\Catalogos;
 
-use App\Models\Catalogos\Estado;
+use App\Models\Catalogos\EstadoModel;
 use App\Models\Catalogos\LocalidadModel;
 use Closure;
 use Illuminate\Support\Facades\Validator;
@@ -18,10 +18,10 @@ final class LocalidadValidator
     public function validateCreate(array $data): array
     {
         return Validator::make($data, [
-            'id_estado' => ['required', 'integer', 'min:1', Rule::exists(Estado::class, 'id_estado')],
+            'id_estado' => ['required', 'integer', 'min:1', Rule::exists(EstadoModel::class, 'id_estado')],
             'nombre_localidad' => $this->reglasNombre($data),
             'codigo_postal' => ['required', 'string', 'regex:/^[0-9]{5}$/'],
-            'activo' => ['sometimes', 'boolean'],
+            
         ], $this->mensajes())->validate();
     }
 
@@ -37,7 +37,7 @@ final class LocalidadValidator
 
         return Validator::make($data, [
             'id_localidad' => ['required', 'integer', 'min:1'],
-            'id_estado' => ['required', 'integer', 'min:1', Rule::exists(Estado::class, 'id_estado')],
+            'id_estado' => ['required', 'integer', 'min:1', Rule::exists(EstadoModel::class, 'id_estado')],
             'nombre_localidad' => $this->reglasNombre($data, $idExcluido),
             'codigo_postal' => ['required', 'string', 'regex:/^[0-9]{5}$/'],
         ], $this->mensajes())->validate();
@@ -48,7 +48,7 @@ final class LocalidadValidator
     {
         return Validator::make($data, [
             'id_localidad' => ['required', 'integer', 'min:1'],
-            'activo' => ['required', 'boolean'],
+            
         ])->validate();
     }
 
@@ -68,7 +68,7 @@ final class LocalidadValidator
 
     /**
      * Una localidad no puede repetirse con el mismo nombre y código postal dentro
-     * del mismo estado. Comparación sin distinguir mayúsculas/minúsculas ni espacios.
+     * del mismo EstadoModel. Comparación sin distinguir mayúsculas/minúsculas ni espacios.
      */
     private function localidadNoDuplicada(array $data, ?int $idExcluido): Closure
     {
@@ -90,7 +90,7 @@ final class LocalidadValidator
                 ->exists();
 
             if ($existe) {
-                $fail('Ya existe una localidad con este nombre y código postal en el estado seleccionado.');
+                $fail('Ya existe una localidad con este nombre y código postal en el EstadoModel seleccionado.');
             }
         };
     }
@@ -98,8 +98,8 @@ final class LocalidadValidator
     private function mensajes(): array
     {
         return [
-            'id_estado.required' => 'El estado es obligatorio.',
-            'id_estado.exists' => 'El estado seleccionado no existe.',
+            'id_estado.required' => 'El EstadoModel es obligatorio.',
+            'id_estado.exists' => 'El EstadoModel seleccionado no existe.',
             'nombre_localidad.required' => 'El nombre de la localidad es obligatorio.',
             'nombre_localidad.string' => 'El nombre de la localidad debe ser texto.',
             'nombre_localidad.max' => 'El nombre no puede exceder 150 caracteres.',

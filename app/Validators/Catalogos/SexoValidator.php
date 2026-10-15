@@ -18,7 +18,7 @@ final class SexoValidator
         return Validator::make($data, [
             'nombre_sexo' => $this->reglasNombre(),
             'descripcion' => ['nullable', 'string'],
-            'activo' => ['sometimes', 'boolean'],
+            
         ], $this->mensajes())->validate();
     }
 

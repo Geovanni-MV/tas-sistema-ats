@@ -8,25 +8,21 @@ namespace App\DTO\Catalogos;
 final readonly class DocumentoDTO
 {
     public function __construct(
-        public ?int $idDocumento,
-        public string $nombreDocumento,
-        public bool $requiereAmbosLados,
-        public bool $permiteCapturaTexto,
-        public int $maximoArchivos,
-        public ?string $descripcion,
-        public bool $activo = true,
+        public ?int $id_documento,
+        public string $nombre_documento,
+        public bool $requiere_ambos_lados,
+        public int $maximo_archivos,
+        public ?string $descripcion
     ) {}
 
     public static function fromArray(array $data): self
     {
         return new self(
-            idDocumento: isset($data['id_documento']) ? (int) $data['id_documento'] : null,
-            nombreDocumento: trim((string) ($data['nombre_documento'] ?? '')),
-            requiereAmbosLados: array_key_exists('requiere_ambos_lados', $data) ? (bool) $data['requiere_ambos_lados'] : false,
-            permiteCapturaTexto: array_key_exists('permite_captura_texto', $data) ? (bool) $data['permite_captura_texto'] : false,
-            maximoArchivos: isset($data['maximo_archivos']) ? (int) $data['maximo_archivos'] : 1,
-            descripcion: isset($data['descripcion']) && trim((string) $data['descripcion']) !== '' ? trim((string) $data['descripcion']) : null,
-            activo: array_key_exists('activo', $data) ? (bool) $data['activo'] : true,
+            id_documento: isset($data['id_documento']) ? (int) $data['id_documento'] : null,
+            nombre_documento: trim((string) ($data['nombre_documento'] ?? '')),
+            requiere_ambos_lados: array_key_exists('requiere_ambos_lados', $data) ? (bool) $data['requiere_ambos_lados'] : false,
+            maximo_archivos: isset($data['maximo_archivos']) ? (int) $data['maximo_archivos'] : 1,
+            descripcion: isset($data['descripcion']) && trim((string) $data['descripcion']) !== '' ? trim((string) $data['descripcion']) : null
         );
     }
 }

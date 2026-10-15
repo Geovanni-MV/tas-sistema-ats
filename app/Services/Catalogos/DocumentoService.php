@@ -25,12 +25,10 @@ final class DocumentoService
     public function crear(DocumentoDTO $dto): DocumentoModel
     {
         $documento = DocumentoModel::query()->create([
-            'nombre_documento' => $dto->nombreDocumento,
-            'requiere_ambos_lados' => $dto->requiereAmbosLados,
-            'permite_captura_texto' => $dto->permiteCapturaTexto,
-            'maximo_archivos' => $dto->maximoArchivos,
-            'descripcion' => $dto->descripcion,
-            'activo' => $dto->activo,
+            'nombre_documento' => $dto->nombre_documento,
+            'requiere_ambos_lados' => $dto->requiere_ambos_lados,
+            'maximo_archivos' => $dto->maximo_archivos,
+            'descripcion' => $dto->descripcion
         ]);
 
         return $documento->refresh();
@@ -42,15 +40,14 @@ final class DocumentoService
      */
     public function actualizar(DocumentoDTO $dto): DocumentoModel
     {
-        $documento = DocumentoModel::query()->findOrFail($dto->idDocumento);
+        $documento = DocumentoModel::query()->findOrFail($dto->id_documento);
 
         $documento->fill([
-            'nombre_documento' => $dto->nombreDocumento,
-            'requiere_ambos_lados' => $dto->requiereAmbosLados,
-            'permite_captura_texto' => $dto->permiteCapturaTexto,
-            'maximo_archivos' => $dto->maximoArchivos,
+            'nombre_documento' => $dto->nombre_documento,
+            'requiere_ambos_lados' => $dto->requiere_ambos_lados,
+            'maximo_archivos' => $dto->maximo_archivos,
             'descripcion' => $dto->descripcion,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $documento->refresh();
@@ -59,13 +56,12 @@ final class DocumentoService
     /**
      * Cambia únicamente el campo activo del registro.
      */
-    public function cambiarEstatus(int $idDocumento, bool $activo): DocumentoModel
+    public function cambiarEstatus(int $id_documento): DocumentoModel
     {
-        $documento = DocumentoModel::query()->findOrFail($idDocumento);
-
+        $documento = DocumentoModel::query()->findOrFail($id_documento);
         $documento->fill([
-            'activo' => $activo,
-            'fecha_actualizacion' => now(),
+            'activo' => !$documento->activo,
+            
         ])->save();
 
         return $documento->refresh();

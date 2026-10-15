@@ -25,9 +25,8 @@ final class EscolaridadService
     public function crear(EscolaridadDTO $dto): EscolaridadModel
     {
         $escolaridad = EscolaridadModel::query()->create([
-            'nombre_escolaridad' => $dto->nombreEscolaridad,
-            'descripcion' => $dto->descripcion,
-            'activo' => $dto->activo,
+            'nombre_escolaridad' => $dto->nombre_escolaridad,
+            'descripcion' => $dto->descripcion
         ]);
 
         return $escolaridad->refresh();
@@ -39,12 +38,12 @@ final class EscolaridadService
      */
     public function actualizar(EscolaridadDTO $dto): EscolaridadModel
     {
-        $escolaridad = EscolaridadModel::query()->findOrFail($dto->idEscolaridad);
+        $escolaridad = EscolaridadModel::query()->findOrFail($dto->id_escolaridad);
 
         $escolaridad->fill([
-            'nombre_escolaridad' => $dto->nombreEscolaridad,
+            'nombre_escolaridad' => $dto->nombre_escolaridad,
             'descripcion' => $dto->descripcion,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $escolaridad->refresh();
@@ -53,13 +52,13 @@ final class EscolaridadService
     /**
      * Cambia únicamente el campo activo del registro.
      */
-    public function cambiarEstatus(int $idEscolaridad, bool $activo): EscolaridadModel
+    public function cambiarEstatus(int $id_escolaridad): EscolaridadModel
     {
-        $escolaridad = EscolaridadModel::query()->findOrFail($idEscolaridad);
+        $escolaridad = EscolaridadModel::query()->findOrFail($id_escolaridad);
 
         $escolaridad->fill([
-            'activo' => $activo,
-            'fecha_actualizacion' => now(),
+            'activo' => !$escolaridad->activo,
+            
         ])->save();
 
         return $escolaridad->refresh();

@@ -11,7 +11,10 @@ class Sexo extends Model
 {
     protected $table = 'catalogos.sexo';
     protected $primaryKey = 'id_sexo';
-    public $timestamps = false;
+    
+    public $timestamps = true;
+    CONST CREATED_AT = 'fecha_registro';
+    CONST UPDATED_AT = 'fecha_actualizacion';
 
     protected $fillable = ['nombre_sexo', 'descripcion', 'fecha_actualizacion', 'activo'];
 

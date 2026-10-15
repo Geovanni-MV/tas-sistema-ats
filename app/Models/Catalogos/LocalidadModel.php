@@ -12,7 +12,10 @@ class LocalidadModel extends Model
 {
     protected $table = 'catalogos.localidades';
     protected $primaryKey = 'id_localidad';
-    public $timestamps = false;
+    
+    public $timestamps = true;
+    CONST CREATED_AT = 'fecha_registro';
+    CONST UPDATED_AT = 'fecha_actualizacion';
 
     protected $fillable = [
         'id_estado',
@@ -31,6 +34,6 @@ class LocalidadModel extends Model
 
     public function estado(): BelongsTo
     {
-        return $this->belongsTo(Estado::class, 'id_estado', 'id_estado');
+        return $this->belongsTo(EstadoModel::class, 'id_estado', 'id_estado');
     }
 }

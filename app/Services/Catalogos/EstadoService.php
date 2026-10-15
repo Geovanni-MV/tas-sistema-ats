@@ -3,7 +3,7 @@
 namespace App\Services\Catalogos;
 
 use App\DTO\Catalogos\EstadoDTO;
-use App\Models\Catalogos\Estado;
+use App\Models\Catalogos\EstadoModel;
 use Illuminate\Support\Collection;
 
 /**
@@ -16,7 +16,7 @@ final class EstadoService
      */
     public function listar(): Collection
     {
-        return Estado::query()
+        return EstadoModel::query()
             ->orderBy('nombre_estado')
             ->get();
     }
@@ -24,12 +24,12 @@ final class EstadoService
     /**
      * Crea un estado a partir del DTO recibido.
      */
-    public function crear(EstadoDTO $dto): Estado
+    public function crear(EstadoDTO $dto): EstadoModel
     {
-        return Estado::query()->create([
-            'nombre_estado' => $dto->nombreEstado,
-            'clave_estado' => $dto->claveEstado,
-            'activo' => $dto->activo,
+        return EstadoModel::query()->create([
+            'nombre_estado' => $dto->nombre_estado,
+            'clave_estado' => $dto->clave_estado,
+            
         ]);
     }
 
@@ -37,14 +37,14 @@ final class EstadoService
      * Actualiza nombre y clave del estado.
      * El estatus se administra de manera independiente.
      */
-    public function actualizar(EstadoDTO $dto): Estado
+    public function actualizar(EstadoDTO $dto): EstadoModel
     {
-        $estado = Estado::query()->findOrFail($dto->idEstado);
+        $estado = EstadoModel::query()->findOrFail($dto->id_estado);
 
         $estado->fill([
-            'nombre_estado' => $dto->nombreEstado,
-            'clave_estado' => $dto->claveEstado,
-            'fecha_actualizacion' => now(),
+            'nombre_estado' => $dto->nombre_estado,
+            'clave_estado' => $dto->clave_estado,
+            
         ])->save();
 
         return $estado->refresh();
@@ -53,13 +53,13 @@ final class EstadoService
     /**
      * Activa o desactiva un estado.
      */
-    public function cambiarEstatus(int $idEstado, bool $activo): Estado
+    public function cambiarEstatus(int $id_estado): EstadoModel
     {
-        $estado = Estado::query()->findOrFail($idEstado);
+        $estado = EstadoModel::query()->findOrFail($id_estado);
 
         $estado->fill([
-            'activo' => $activo,
-            'fecha_actualizacion' => now(),
+            'activo' => !$estado->activo,
+            
         ])->save();
 
         return $estado->refresh();

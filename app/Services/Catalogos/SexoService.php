@@ -25,9 +25,9 @@ final class SexoService
     public function crear(SexoDTO $dto): Sexo
     {
         return Sexo::query()->create([
-            'nombre_sexo' => $dto->nombreSexo,
+            'nombre_sexo' => $dto->nombre_sexo,
             'descripcion' => $dto->descripcion,
-            'activo' => $dto->activo,
+            
         ]);
     }
 
@@ -37,12 +37,12 @@ final class SexoService
      */
     public function actualizar(SexoDTO $dto): Sexo
     {
-        $sexo = Sexo::query()->findOrFail($dto->idSexo);
+        $sexo = Sexo::query()->findOrFail($dto->id_sexo);
 
         $sexo->fill([
-            'nombre_sexo' => $dto->nombreSexo,
+            'nombre_sexo' => $dto->nombre_sexo,
             'descripcion' => $dto->descripcion,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $sexo->refresh();

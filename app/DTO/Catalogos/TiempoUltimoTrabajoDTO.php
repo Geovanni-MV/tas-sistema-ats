@@ -8,19 +8,17 @@ namespace App\DTO\Catalogos;
 final readonly class TiempoUltimoTrabajoDTO
 {
     public function __construct(
-        public ?int $idTiempoUltimoTrabajo,
-        public string $nombreTiempoUltimoTrabajo,
-        public ?string $descripcion,
-        public bool $activo = true,
+        public ?int $id_tiempo_ultimo_trabajo,
+        public string $nombre_tiempo_ultimo_trabajo,
+        public ?string $descripcion
     ) {}
 
     public static function fromArray(array $data): self
     {
         return new self(
-            idTiempoUltimoTrabajo: isset($data['id_tiempo_ultimo_trabajo']) ? (int) $data['id_tiempo_ultimo_trabajo'] : null,
-            nombreTiempoUltimoTrabajo: trim((string) ($data['nombre_tiempo_ultimo_trabajo'] ?? '')),
-            descripcion: isset($data['descripcion']) && trim((string) $data['descripcion']) !== '' ? trim((string) $data['descripcion']) : null,
-            activo: array_key_exists('activo', $data) ? (bool) $data['activo'] : true,
+            id_tiempo_ultimo_trabajo: isset($data['id_tiempo_ultimo_trabajo']) ? (int) $data['id_tiempo_ultimo_trabajo'] : null,
+            nombre_tiempo_ultimo_trabajo: trim((string) ($data['nombre_tiempo_ultimo_trabajo'] ?? '')),
+            descripcion: isset($data['descripcion']) && trim((string) $data['descripcion']) !== '' ? trim((string) $data['descripcion']) : null
         );
     }
 }

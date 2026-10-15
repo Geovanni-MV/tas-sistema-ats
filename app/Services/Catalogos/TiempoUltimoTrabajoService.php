@@ -24,13 +24,13 @@ final class TiempoUltimoTrabajoService
      */
     public function crear(TiempoUltimoTrabajoDTO $dto): TiempoUltimoTrabajoModel
     {
-        $tiempoUltimoTrabajo = TiempoUltimoTrabajoModel::query()->create([
-            'nombre_tiempo_ultimo_trabajo' => $dto->nombreTiempoUltimoTrabajo,
+        $tiempo_ultimo_trabajo = TiempoUltimoTrabajoModel::query()->create([
+            'nombre_tiempo_ultimo_trabajo' => $dto->nombre_tiempo_ultimo_trabajo,
             'descripcion' => $dto->descripcion,
-            'activo' => $dto->activo,
+            
         ]);
 
-        return $tiempoUltimoTrabajo->refresh();
+        return $tiempo_ultimo_trabajo->refresh();
     }
 
     /**
@@ -39,29 +39,29 @@ final class TiempoUltimoTrabajoService
      */
     public function actualizar(TiempoUltimoTrabajoDTO $dto): TiempoUltimoTrabajoModel
     {
-        $tiempoUltimoTrabajo = TiempoUltimoTrabajoModel::query()->findOrFail($dto->idTiempoUltimoTrabajo);
+        $tiempo_ultimo_trabajo = TiempoUltimoTrabajoModel::query()->findOrFail($dto->id_tiempo_ultimo_trabajo);
 
-        $tiempoUltimoTrabajo->fill([
-            'nombre_tiempo_ultimo_trabajo' => $dto->nombreTiempoUltimoTrabajo,
+        $tiempo_ultimo_trabajo->fill([
+            'nombre_tiempo_ultimo_trabajo' => $dto->nombre_tiempo_ultimo_trabajo,
             'descripcion' => $dto->descripcion,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
-        return $tiempoUltimoTrabajo->refresh();
+        return $tiempo_ultimo_trabajo->refresh();
     }
 
     /**
      * Cambia únicamente el campo activo del registro.
      */
-    public function cambiarEstatus(int $idTiempoUltimoTrabajo, bool $activo): TiempoUltimoTrabajoModel
+    public function cambiarEstatus(int $id_tiempo_ultimo_trabajo): TiempoUltimoTrabajoModel
     {
-        $tiempoUltimoTrabajo = TiempoUltimoTrabajoModel::query()->findOrFail($idTiempoUltimoTrabajo);
+        $tiempo_ultimo_trabajo = TiempoUltimoTrabajoModel::query()->findOrFail($id_tiempo_ultimo_trabajo);
 
-        $tiempoUltimoTrabajo->fill([
-            'activo' => $activo,
-            'fecha_actualizacion' => now(),
+        $tiempo_ultimo_trabajo->fill([
+            'activo' => !$tiempo_ultimo_trabajo->activo,
+            
         ])->save();
 
-        return $tiempoUltimoTrabajo->refresh();
+        return $tiempo_ultimo_trabajo->refresh();
     }
 }
