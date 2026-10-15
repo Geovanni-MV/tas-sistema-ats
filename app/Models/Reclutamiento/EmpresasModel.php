@@ -11,9 +11,9 @@ class EmpresasModel extends Model
     protected $table = 'reclutamiento.empresas';
     protected $primaryKey = 'id_empresa';
     
+    public $timestamps = true;
     CONST CREATED_AT = 'fecha_registro';
     CONST UPDATED_AT = 'fecha_actualizacion';
-
     protected $fillable = [
         'nombre_empresa',
         'img_logo_url',
