@@ -1,25 +1,26 @@
 <?php
 
 /**ESQUEMA: RECLUTAMIENTO */
-use App\Http\Controllers\Reclutamiento\EmpresaController;
+use App\Http\Controllers\Api\Reclutamiento\EmpresaController;
 
 /**ESQUEMA: CATALOGOS */
-use App\Http\Controllers\Catalogos\DocumentoController;
-use App\Http\Controllers\Catalogos\EscolaridadController;
-use App\Http\Controllers\Catalogos\EstadoCivilController;
-use App\Http\Controllers\Catalogos\EstadoController;
-use App\Http\Controllers\Catalogos\LocalidadController;
-use App\Http\Controllers\Catalogos\ModalidadController;
-use App\Http\Controllers\Catalogos\SexoController;
-use App\Http\Controllers\Catalogos\TiempoUltimoTrabajoController;
-use App\Http\Controllers\Catalogos\TipoJornadaController;
-use App\Http\Controllers\Catalogos\TipoTurnoController;
+use App\Http\Controllers\Api\Catalogos\DocumentoController;
+use App\Http\Controllers\Api\Catalogos\EscolaridadController;
+use App\Http\Controllers\Api\Catalogos\EstadoCivilController;
+use App\Http\Controllers\Api\Catalogos\EstadoController;
+use App\Http\Controllers\Api\Catalogos\LocalidadController;
+use App\Http\Controllers\Api\Catalogos\ModalidadController;
+use App\Http\Controllers\Api\Catalogos\SexoController;
+use App\Http\Controllers\Api\Catalogos\TiempoUltimoTrabajoController;
+use App\Http\Controllers\Api\Catalogos\TipoJornadaController;
+use App\Http\Controllers\Api\Catalogos\TipoTurnoController;
 /**ESQUEMA: SEGURIDAD */
-use App\Http\Controllers\Seguridad\MenuController;
-use App\Http\Controllers\Seguridad\PermisoController;
-use App\Http\Controllers\Seguridad\PermisoRolController;
-use App\Http\Controllers\Seguridad\RolController;
-use App\Http\Controllers\Seguridad\UsuarioController;
+use App\Http\Controllers\Api\Seguridad\MenuController;
+use App\Http\Controllers\Api\Seguridad\PermisoController;
+use App\Http\Controllers\Api\Seguridad\PermisoRolController;
+use App\Http\Controllers\Api\Seguridad\RolController;
+use App\Http\Controllers\Api\Seguridad\UsuarioController;
+use App\Http\Controllers\Api\Seguridad\AuthController;
 /** */
 use Illuminate\Support\Facades\Route;
 
@@ -54,8 +55,8 @@ Route::prefix('/v1')->name('api.v1.')->group(function () {
         Route::prefix('sexos')->name('sexos.')->group(function () {
             Route::get('/', [SexoController::class, 'obtenerDatos'])->name('obtener-datos');
             Route::post('/', [SexoController::class, 'crear'])->name('crear');
-            Route::put('/{idSexo}', [SexoController::class, 'actualizar'])->name('actualizar');
-            Route::patch('/{idSexo}/estatus', [SexoController::class, 'cambiarEstatus'])->name('cambiar-estatus');
+            Route::put('/{id_sexo}', [SexoController::class, 'actualizar'])->name('actualizar');
+            Route::patch('/{id_sexo}/estatus-activo', [SexoController::class, 'cambiarEstatus'])->name('cambiar-estatus');
         });
         /**
          * ESTADOS
@@ -63,8 +64,8 @@ Route::prefix('/v1')->name('api.v1.')->group(function () {
         Route::prefix('estados')->name('estados.')->group(function () {
             Route::get('/', [EstadoController::class, 'obtenerDatos'])->name('obtener-datos');
             Route::post('/', [EstadoController::class, 'crear'])->name('crear');
-            Route::put('/{idEstado}', [EstadoController::class, 'actualizar'])->name('actualizar');
-            Route::patch('/{idEstado}/estatus', [EstadoController::class, 'cambiarEstatus'])->name('cambiar-estatus');
+            Route::put('/{id_estado}', [EstadoController::class, 'actualizar'])->name('actualizar');
+            Route::patch('/{id_estado}/estatus-activo', [EstadoController::class, 'cambiarEstatus'])->name('cambiar-estatus');
         });
         /**
          * ESTADOS CIVILES
@@ -72,8 +73,8 @@ Route::prefix('/v1')->name('api.v1.')->group(function () {
         Route::prefix('estados-civiles')->name('estados-civiles.')->group(function () {
             Route::get('/', [EstadoCivilController::class, 'obtenerDatos'])->name('obtener-datos');
             Route::post('/', [EstadoCivilController::class, 'crear'])->name('crear');
-            Route::put('/{idEstadoCivil}', [EstadoCivilController::class, 'actualizar'])->name('actualizar');
-            Route::patch('/{idEstadoCivil}/estatus', [EstadoCivilController::class, 'cambiarEstatus'])->name('cambiar-estatus');
+            Route::put('/{id_estado_civil}', [EstadoCivilController::class, 'actualizar'])->name('actualizar');
+            Route::patch('/{id_estado_civil}/estatus-activo', [EstadoCivilController::class, 'cambiarEstatus'])->name('cambiar-estatus');
         });
         /**
          * ESCOLARIDADES
@@ -81,8 +82,8 @@ Route::prefix('/v1')->name('api.v1.')->group(function () {
         Route::prefix('escolaridades')->name('escolaridades.')->group(function () {
             Route::get('/', [EscolaridadController::class, 'obtenerDatos'])->name('obtener-datos');
             Route::post('/', [EscolaridadController::class, 'crear'])->name('crear');
-            Route::put('/{idEscolaridad}', [EscolaridadController::class, 'actualizar'])->name('actualizar');
-            Route::patch('/{idEscolaridad}/estatus', [EscolaridadController::class, 'cambiarEstatus'])->name('cambiar-estatus');
+            Route::put('/{id_escolaridad}', [EscolaridadController::class, 'actualizar'])->name('actualizar');
+            Route::patch('/{id_escolaridad}/estatus-activo', [EscolaridadController::class, 'cambiarEstatus'])->name('cambiar-estatus');
         });
         /**
          * TIEMPO EN ULTIMO TRABAJO
@@ -90,8 +91,8 @@ Route::prefix('/v1')->name('api.v1.')->group(function () {
         Route::prefix('tiempos-ultimo-trabajo')->name('tiempos-ultimo-trabajo.')->group(function () {
             Route::get('/', [TiempoUltimoTrabajoController::class, 'obtenerDatos'])->name('obtener-datos');
             Route::post('/', [TiempoUltimoTrabajoController::class, 'crear'])->name('crear');
-            Route::put('/{idTiempoUltimoTrabajo}', [TiempoUltimoTrabajoController::class, 'actualizar'])->name('actualizar');
-            Route::patch('/{idTiempoUltimoTrabajo}/estatus', [TiempoUltimoTrabajoController::class, 'cambiarEstatus'])->name('cambiar-estatus');
+            Route::put('/{id_tiempo_ultimo_trabajo}', [TiempoUltimoTrabajoController::class, 'actualizar'])->name('actualizar');
+            Route::patch('/{id_tiempo_ultimo_trabajo}/estatus-activo', [TiempoUltimoTrabajoController::class, 'cambiarEstatus'])->name('cambiar-estatus');
         });
         /**
          * MODALIDADES
@@ -99,8 +100,8 @@ Route::prefix('/v1')->name('api.v1.')->group(function () {
         Route::prefix('modalidades')->name('modalidades.')->group(function () {
             Route::get('/', [ModalidadController::class, 'obtenerDatos'])->name('obtener-datos');
             Route::post('/', [ModalidadController::class, 'crear'])->name('crear');
-            Route::put('/{idModalidad}', [ModalidadController::class, 'actualizar'])->name('actualizar');
-            Route::patch('/{idModalidad}/estatus', [ModalidadController::class, 'cambiarEstatus'])->name('cambiar-estatus');
+            Route::put('/{id_modalidad}', [ModalidadController::class, 'actualizar'])->name('actualizar');
+            Route::patch('/{id_modalidad}/estatus-activo', [ModalidadController::class, 'cambiarEstatus'])->name('cambiar-estatus');
         });
         /**
          * TIPOS DE JORNADA
@@ -108,8 +109,8 @@ Route::prefix('/v1')->name('api.v1.')->group(function () {
         Route::prefix('tipos-jornada')->name('tipos-jornada.')->group(function () {
             Route::get('/', [TipoJornadaController::class, 'obtenerDatos'])->name('obtener-datos');
             Route::post('/', [TipoJornadaController::class, 'crear'])->name('crear');
-            Route::put('/{idTipoJornada}', [TipoJornadaController::class, 'actualizar'])->name('actualizar');
-            Route::patch('/{idTipoJornada}/estatus', [TipoJornadaController::class, 'cambiarEstatus'])->name('cambiar-estatus');
+            Route::put('/{id_tipo_jornada}', [TipoJornadaController::class, 'actualizar'])->name('actualizar');
+            Route::patch('/{id_tipo_jornada}/estatus-activo', [TipoJornadaController::class, 'cambiarEstatus'])->name('cambiar-estatus');
         });
         /**
          * TIPOS DE TURNO
@@ -117,8 +118,8 @@ Route::prefix('/v1')->name('api.v1.')->group(function () {
         Route::prefix('tipos-turno')->name('tipos-turno.')->group(function () {
             Route::get('/', [TipoTurnoController::class, 'obtenerDatos'])->name('obtener-datos');
             Route::post('/', [TipoTurnoController::class, 'crear'])->name('crear');
-            Route::put('/{idTipoTurno}', [TipoTurnoController::class, 'actualizar'])->name('actualizar');
-            Route::patch('/{idTipoTurno}/estatus', [TipoTurnoController::class, 'cambiarEstatus'])->name('cambiar-estatus');
+            Route::put('/{id_tipo_turno}', [TipoTurnoController::class, 'actualizar'])->name('actualizar');
+            Route::patch('/{id_tipo_turno}/estatus-activo', [TipoTurnoController::class, 'cambiarEstatus'])->name('cambiar-estatus');
         });
         /**
          * DOCUMENTOS
@@ -126,8 +127,8 @@ Route::prefix('/v1')->name('api.v1.')->group(function () {
         Route::prefix('documentos')->name('documentos.')->group(function () {
             Route::get('/', [DocumentoController::class, 'obtenerDatos'])->name('obtener-datos');
             Route::post('/', [DocumentoController::class, 'crear'])->name('crear');
-            Route::put('/{idDocumento}', [DocumentoController::class, 'actualizar'])->name('actualizar');
-            Route::patch('/{idDocumento}/estatus', [DocumentoController::class, 'cambiarEstatus'])->name('cambiar-estatus');
+            Route::put('/{id_documento}', [DocumentoController::class, 'actualizar'])->name('actualizar');
+            Route::patch('/{id_documento}/estatus-activo', [DocumentoController::class, 'cambiarEstatus'])->name('cambiar-estatus');
         });
         /**
          * LOCALIDADES
@@ -135,8 +136,8 @@ Route::prefix('/v1')->name('api.v1.')->group(function () {
         Route::prefix('localidades')->name('localidades.')->group(function () {
             Route::get('/', [LocalidadController::class, 'obtenerDatos'])->name('obtener-datos');
             Route::post('/', [LocalidadController::class, 'crear'])->name('crear');
-            Route::put('/{idLocalidad}', [LocalidadController::class, 'actualizar'])->name('actualizar');
-            Route::patch('/{idLocalidad}/estatus', [LocalidadController::class, 'cambiarEstatus'])->name('cambiar-estatus');
+            Route::put('/{id_localidad}', [LocalidadController::class, 'actualizar'])->name('actualizar');
+            Route::patch('/{id_localidad}/estatus-activo', [LocalidadController::class, 'cambiarEstatus'])->name('cambiar-estatus');
         });
     });
 
