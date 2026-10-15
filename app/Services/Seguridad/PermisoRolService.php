@@ -56,7 +56,7 @@ final class PermisoRolService
             'id_permiso' => $dto->id_permiso,
             'id_rol' => $dto->id_rol,
             'id_menu' => $dto->id_menu,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $asignacion->refresh()->load(self::RELACIONES);
@@ -71,7 +71,7 @@ final class PermisoRolService
 
         $asignacion->fill([
             'activo' => ! $asignacion->activo,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $asignacion->refresh()->load(self::RELACIONES);

@@ -4,6 +4,7 @@ namespace App\Services\Seguridad;
 
 use App\DTO\Seguridad\MenuDTO;
 use App\Models\Seguridad\MenuModel;
+use App\Models\Seguridad\UsuarioModel;
 use Illuminate\Support\Collection;
 
 /**
@@ -61,7 +62,7 @@ final class MenuService
             'descripcion' => $dto->descripcion,
             'orden' => $dto->orden,
             'ruta' => $dto->ruta,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $menu->refresh()->load(self::RELACIONES);
@@ -76,9 +77,87 @@ final class MenuService
 
         $menu->fill([
             'activo' => ! $menu->activo,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $menu->refresh()->load(self::RELACIONES);
+    }
+    /**
+     * Obtiene los menus y genera la agrupacion de esquemas
+     */
+    private function agruparMenus(
+        Collection $menus,
+        ?int $idMenuPadre = null
+    ): array {
+
+        $resultado = [];
+
+        foreach ($menus as $menu) {
+
+            if ($menu->id_menu_padre !== $idMenuPadre) {
+                continue;
+            }
+
+            $hijos = $this->agruparMenus(
+                $menus,
+                (int) $menu->id_menu
+            );
+
+            $resultado[] = [
+                'id_menu' => $menu->id_menu,
+                'id_menu_padre' => $menu->id_menu_padre,
+                'nombre_menu' => $menu->nombre_menu,
+                'ruta' => $menu->ruta,
+                'icono_clase' => $menu->icono_clase,
+                'orden' => $menu->orden,
+                'es_padre' => $menu->es_padre,
+                'es_colapsable' => $menu->es_colapsable,
+                'hijos' => $hijos,
+            ];
+        }
+
+        return $resultado;
+    }
+
+    public function obtenerMenusUsuario(
+        UsuarioModel $usuario
+    ): array {
+
+        $menus = MenuModel::query()
+            ->select(
+                'seguridad.menu.id_menu',
+                'seguridad.menu.id_menu_padre',
+                'seguridad.menu.nombre_menu',
+                'seguridad.menu.ruta',
+                'seguridad.menu.icono_clase',
+                'seguridad.menu.orden',
+                'seguridad.menu.es_padre',
+                'seguridad.menu.es_colapsable'
+            )
+            ->join(
+                'seguridad.permisos_roles',
+                'seguridad.permisos_roles.id_menu',
+                '=',
+                'seguridad.menu.id_menu'
+            )
+            ->where(
+                'seguridad.permisos_roles.id_rol',
+                $usuario->id_rol
+            )
+            ->where(
+                'seguridad.permisos_roles.activo',
+                true
+            )
+            ->where(
+                'seguridad.menu.activo',
+                true
+            )
+            ->distinct()
+            ->orderBy(
+                'seguridad.menu.orden'
+            )
+            ->get();
+
+        return $this->agruparMenus($menus);
     }
 }

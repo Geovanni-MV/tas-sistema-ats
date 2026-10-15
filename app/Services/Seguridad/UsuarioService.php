@@ -62,7 +62,7 @@ final class UsuarioService
             'correo_electronico' => $dto->correo_electronico,
             'id_empresa' => $dto->id_empresa,
             'id_rol' => $dto->id_rol,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $usuario->refresh()->load(self::RELACIONES);
@@ -77,7 +77,7 @@ final class UsuarioService
 
         $usuario->fill([
             'clave_hash' => Hash::make($clave),
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $usuario->refresh()->load(self::RELACIONES);
@@ -92,7 +92,7 @@ final class UsuarioService
 
         $usuario->fill([
             'activo' => ! $usuario->activo,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $usuario->refresh()->load(self::RELACIONES);

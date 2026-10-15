@@ -55,7 +55,7 @@ final class RolService
 
         $registro->fill([
             'activo' => ! $registro->activo,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $registro->refresh();

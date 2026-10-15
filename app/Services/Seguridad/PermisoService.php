@@ -41,7 +41,7 @@ final class PermisoService
         $registro->fill([
             'nombre_permiso' => $dto->nombre_permiso,
             'descripcion' => $dto->descripcion,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $registro->refresh();
@@ -56,7 +56,7 @@ final class PermisoService
 
         $registro->fill([
             'activo' => ! $registro->activo,
-            'fecha_actualizacion' => now(),
+            
         ])->save();
 
         return $registro->refresh();
