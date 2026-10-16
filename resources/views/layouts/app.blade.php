@@ -28,7 +28,9 @@
                 <span>Dashboard</span>
             </a>
             
+            
             @php
+            /*
             /*
                 $groups = [
                     'reclutamiento' => [
@@ -69,6 +71,7 @@
                         ],
                     ],
                 ];*/
+                ];*/
             @endphp
 
             @foreach ($data['layout_data']['menu'] as $item)
@@ -101,12 +104,43 @@
                                 ⌄
                             </span>
                         </button>
+                    @if (!empty($item['hijos']))
+
+                        <button
+                            type="button"
+                            data-collapse-button="{{ $item['id_menu'] }}"
+                            class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+                        >
+                            <span class="flex items-center gap-3">
+
+                                @if (!empty($item['icono_clase']))
+                                    <i class="{{ $item['icono_clase'] }}"></i>
+                                @endif
+
+                                <span>
+                                    {{ $item['nombre_menu'] }}
+                                </span>
+
+                            </span>
+
+                            <span
+                                data-collapse-icon="{{ $item['id_menu'] }}"
+                                class="text-slate-400 transition-transform"
+                            >
+                                ⌄
+                            </span>
+                        </button>
 
                         <div
                             data-collapse-panel="{{ $item['id_menu'] }}"
                             class="ml-3 mt-1 hidden space-y-1 border-l border-slate-200 pl-3"
                         >
+                        <div
+                            data-collapse-panel="{{ $item['id_menu'] }}"
+                            class="ml-3 mt-1 hidden space-y-1 border-l border-slate-200 pl-3"
+                        >
 
+                            @foreach ($item['hijos'] as $hijo)
                             @foreach ($item['hijos'] as $hijo)
 
                                 <a
@@ -121,10 +155,43 @@
                                     </span>
 
                                 </a>
+                                <a
+                                    href="{{ url($hijo['ruta']) }}"
+                                    class="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-600 transition hover:bg-blue-50 hover:text-blue-700"
+                                >
 
+                                    <span class="h-1.5 w-1.5 rounded-full bg-slate-300 group-hover:bg-blue-500"></span>
+
+                                    <span>
+                                        {{ $hijo['nombre_menu'] }}
+                                    </span>
+
+                                </a>
+
+                            @endforeach
                             @endforeach
 
                         </div>
+                        </div>
+
+                    @else
+
+                        <a
+                            href="{{ url($item['ruta']) }}"
+                            class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+                        >
+
+                            @if (!empty($item['icono_clase']))
+                                <i class="{{ $item['icono_clase'] }}"></i>
+                            @endif
+
+                            <span>
+                                {{ $item['nombre_menu'] }}
+                            </span>
+
+                        </a>
+
+                    @endif
 
                     @else
 
