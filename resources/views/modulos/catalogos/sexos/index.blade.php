@@ -99,7 +99,7 @@
     </div>
 </div>
 
-<div id="sexos-config" class="hidden" data-url-obtener="{{ route('api.v1.catalogos.sexos.obtener-datos') }}" data-url-crear="{{ route('api.v1.catalogos.sexos.crear') }}" data-url-actualizar="{{ route('api.v1.catalogos.sexos.actualizar', ['idSexo' => '__ID__']) }}" data-url-cambiar-estatus="{{ route('api.v1.catalogos.sexos.cambiar-estatus', ['idSexo' => '__ID__']) }}"></div>
+<div id="sexos-config" class="hidden" data-url-obtener="{{ route('api.v1.catalogos.sexos.obtener-datos') }}" data-url-crear="{{ route('api.v1.catalogos.sexos.crear') }}" data-url-actualizar="{{ route('api.v1.catalogos.sexos.actualizar', ['id_sexo' => '__ID__']) }}" data-url-cambiar-estatus="{{ route('api.v1.catalogos.sexos.cambiar-estatus', ['id_sexo' => '__ID__']) }}"></div>
 @endsection
 
 @push('scripts')
