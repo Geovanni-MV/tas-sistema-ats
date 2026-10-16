@@ -40,7 +40,7 @@
                     </p>
 
                     <p class="mt-2 text-3xl font-semibold text-slate-800">
-                        {{ $data['resumen']['vacantes_activas'] }}
+                        {{ $data['data_modulo']['resumen']['vacantes_activas'] }}
                     </p>
                 </div>
 
@@ -64,7 +64,7 @@
                     </p>
 
                     <p class="mt-2 text-3xl font-semibold text-slate-800">
-                        {{ $data['resumen']['candidatos'] }}
+                        {{ $data['data_modulo']['resumen']['candidatos'] }}
                     </p>
                 </div>
 
@@ -88,7 +88,7 @@
                     </p>
 
                     <p class="mt-2 text-3xl font-semibold text-slate-800">
-                        {{ $data['resumen']['en_proceso'] }}
+                        {{ $data['data_modulo']['resumen']['en_proceso'] }}
                     </p>
                 </div>
 
@@ -112,7 +112,7 @@
                     </p>
 
                     <p class="mt-2 text-3xl font-semibold text-slate-800">
-                        {{ $data['resumen']['contrataciones'] }}
+                        {{ $data['data_modulo']['resumen']['contrataciones'] }}
                     </p>
                 </div>
 

@@ -71,7 +71,7 @@
                 ];*/
             @endphp
 
-            @foreach ($data['menu'] as $item)
+            @foreach ($data['layout_data']['menu'] as $item)
 
                 <div class="mb-2">
 
@@ -183,8 +183,8 @@
                 </div>
 
                 <div class="hidden text-left md:block">
-                    <div class="text-sm font-semibold text-slate-900">{{ $data['usuario']['nombres'] }}</div>
-                    <div class="text-xs text-slate-500">{{ $data['usuario']['rol']['nombre_rol'] }}</div>
+                    <div class="text-sm font-semibold text-slate-900">{{ $data['layout_data']['usuario']['nombres'] }}</div>
+                    <div class="text-xs text-slate-500">{{ $data['layout_data']['usuario']['rol']['nombre_rol'] }}</div>
                 </div>
 
                 <button type="button" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50">
