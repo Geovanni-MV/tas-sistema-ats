@@ -7,15 +7,15 @@ import { crearPermisosRolesConfig } from './PermisosRolesConfig';
  *
  * Filas: opciones del menú (respetando su jerarquía).
  * Columnas: permisos activos.
- * Cada casilla representa un registro de seguridad.permisos_roles para el rol elegido.
+ * Cada casilla representa una asignación permiso + menú para el rol elegido.
  *
- * Flujo de una casilla:
- *   - marcar sin registro previo   -> POST   crear
- *   - marcar con registro inactivo -> PATCH  estatus (activa)
- *   - desmarcar con registro activo -> PATCH estatus (desactiva)
- *
- * Todo cambio (casilla, fila o columna) pasa por aplicar(), que solo envía a la
- * API lo que realmente difiere del estado actual y refleja la respuesta del servidor.
+ * Flujo:
+ *   1. Al elegir un rol se carga su estado guardado (estado.asignaciones).
+ *   2. Marcar o desmarcar casillas (una a una, por fila o por columna) NO llama a la API:
+ *      solo registra la diferencia respecto al estado guardado en estado.cambios.
+ *   3. "Guardar cambios" envía todas las diferencias en una única petición
+ *      (PUT permisos-roles/sincronizar/{id_rol}) y reemplaza el estado guardado
+ *      con la respuesta del servidor.
  */
 const PermisosRoles = {
     config: null,
@@ -26,9 +26,11 @@ const PermisosRoles = {
         menus: [],
         asignaciones: [],
         idRol: null,
-        pendientes: new Set(),
+        // Diferencias pendientes respecto a lo guardado: clave -> { idMenu, idPermiso, activar }
+        cambios: new Map(),
+        guardando: false,
         solicitud: 0,
-        temporizadorError: null,
+        temporizadorAviso: null,
     },
 
     peticiones: {
@@ -48,14 +50,9 @@ const PermisosRoles = {
             return Api.get(`${PermisosRoles.config.urls.obtener}?id_rol=${encodeURIComponent(idRol)}`);
         },
 
-        crear: async function (payload) {
-            return Api.post(PermisosRoles.config.urls.crear, payload);
-        },
-
-        // La API alterna el valor actual de "activo", por eso no requiere cuerpo.
-        cambiarEstatus: async function (idPermisoRol) {
-            const url = PermisosRoles.config.urls.cambiarEstatus.replace('__ID__', idPermisoRol);
-            return Api.patch(url, {});
+        sincronizar: async function (idRol, payload) {
+            const url = PermisosRoles.config.urls.sincronizar.replace('__ID__', idRol);
+            return Api.put(url, payload);
         },
     },
 
@@ -112,6 +109,7 @@ const PermisosRoles = {
         return resultado;
     },
 
+    /** Estado guardado en el servidor, indexado por menú + permiso. */
     indice: function () {
         const indice = new Map();
 
@@ -122,8 +120,15 @@ const PermisosRoles = {
         return indice;
     },
 
-    estaAsignado: function (idMenu, idPermiso, indice = this.indice()) {
+    estaGuardado: function (idMenu, idPermiso, indice = this.indice()) {
         return Boolean(indice.get(this.clave(idMenu, idPermiso))?.activo);
+    },
+
+    /** Valor que se muestra: el cambio pendiente si existe; si no, lo guardado. */
+    estaMarcado: function (idMenu, idPermiso, indice = this.indice()) {
+        const cambio = this.estado.cambios.get(this.clave(idMenu, idPermiso));
+
+        return cambio ? cambio.activar : this.estaGuardado(idMenu, idPermiso, indice);
     },
 
     /**
@@ -143,7 +148,7 @@ const PermisosRoles = {
             }
 
             if (soloAsignadas) {
-                return permisos.some(permiso => this.estaAsignado(menu.id_menu, permiso.id_permiso, indice));
+                return permisos.some(permiso => this.estaMarcado(menu.id_menu, permiso.id_permiso, indice));
             }
 
             return true;
@@ -170,7 +175,7 @@ const PermisosRoles = {
             this.estado.menus = menus.data ?? [];
             this.poblarRoles();
         } catch (error) {
-            this.mostrarError(this.obtenerMensajeError(error));
+            this.mostrarAviso(this.obtenerMensajeError(error), 'error');
         } finally {
             this.cargando.matriz(false);
             this.cargando.kpis(false);
@@ -184,7 +189,7 @@ const PermisosRoles = {
 
         this.estado.idRol = idRol ? Number(idRol) : null;
         this.estado.asignaciones = [];
-        this.estado.pendientes.clear();
+        this.estado.cambios.clear();
 
         if (!this.estado.idRol) {
             this.renderizar();
@@ -203,7 +208,7 @@ const PermisosRoles = {
             );
         } catch (error) {
             if (solicitud === this.estado.solicitud) {
-                this.mostrarError(this.obtenerMensajeError(error));
+                this.mostrarAviso(this.obtenerMensajeError(error), 'error');
             }
         } finally {
             if (solicitud === this.estado.solicitud) {
@@ -222,90 +227,84 @@ const PermisosRoles = {
     },
 
     /* ------------------------------------------------------------------
-     * Cambios de permisos
+     * Cambios pendientes y guardado
      * ------------------------------------------------------------------ */
 
     /**
-     * Aplica una lista de cambios { idMenu, idPermiso, activar }.
-     * Descarta los que ya coinciden con el estado actual y los que están en curso.
+     * Registra el estado deseado de una lista de celdas { idMenu, idPermiso, activar }.
+     * Si el valor coincide con lo guardado, el cambio pendiente se elimina.
+     * No hace ninguna petición.
      */
-    aplicar: async function (cambios) {
-        const idRol = this.estado.idRol;
+    marcar: function (celdas) {
+        if (this.estado.guardando || !this.estado.idRol) return;
+
         const indice = this.indice();
 
-        const lista = cambios.filter(cambio => {
-            const clave = this.clave(cambio.idMenu, cambio.idPermiso);
+        celdas.forEach(({ idMenu, idPermiso, activar }) => {
+            const clave = this.clave(idMenu, idPermiso);
 
-            return !this.estado.pendientes.has(clave)
-                && this.estaAsignado(cambio.idMenu, cambio.idPermiso, indice) !== cambio.activar;
+            if (activar === this.estaGuardado(idMenu, idPermiso, indice)) {
+                this.estado.cambios.delete(clave);
+            } else {
+                this.estado.cambios.set(clave, { idMenu: Number(idMenu), idPermiso: Number(idPermiso), activar });
+            }
         });
 
-        if (!idRol || lista.length === 0) {
-            // Restaura el estado visual de las casillas que el navegador ya alternó.
-            this.renderizar();
-            return;
-        }
+        this.renderizar();
+    },
 
-        lista.forEach(cambio => this.estado.pendientes.add(this.clave(cambio.idMenu, cambio.idPermiso)));
+    descartar: function () {
+        if (this.estado.guardando) return;
+
+        this.estado.cambios.clear();
+        this.renderizar();
+    },
+
+    /**
+     * Envía todas las diferencias en una sola petición. Si falla, los cambios
+     * pendientes se conservan para poder reintentar.
+     */
+    guardar: async function () {
+        const idRol = this.estado.idRol;
+
+        if (!idRol || this.estado.guardando || this.estado.cambios.size === 0) return;
+
+        const payload = {
+            asignaciones: [...this.estado.cambios.values()].map(cambio => ({
+                id_permiso: cambio.idPermiso,
+                id_menu: cambio.idMenu,
+                activo: cambio.activar,
+            })),
+        };
+
+        this.estado.guardando = true;
         this.renderizar();
 
-        const { loteMaximo } = this.config.mensajes;
-        const fallos = [];
+        try {
+            const respuesta = await this.peticiones.sincronizar(idRol, payload);
 
-        for (let inicio = 0; inicio < lista.length; inicio += loteMaximo) {
-            const lote = lista.slice(inicio, inicio + loteMaximo);
-            const resultados = await Promise.allSettled(lote.map(cambio => this.ejecutarCambio(idRol, cambio)));
-
-            resultados.forEach((resultado, posicion) => {
-                if (resultado.status === 'rejected') {
-                    fallos.push({ cambio: lote[posicion], error: resultado.reason });
-                }
-            });
-        }
-
-        // El rol pudo cambiar mientras se guardaba; en ese caso no se toca la vista nueva.
-        if (this.estado.idRol === idRol) {
-            lista.forEach(cambio => this.estado.pendientes.delete(this.clave(cambio.idMenu, cambio.idPermiso)));
+            this.estado.asignaciones = respuesta.data ?? [];
+            this.estado.cambios.clear();
+            this.mostrarAviso(this.textoResumen(respuesta.resumen), 'exito');
+        } catch (error) {
+            this.mostrarAviso(this.obtenerMensajeError(error), 'error');
+        } finally {
+            this.estado.guardando = false;
             this.renderizar();
         }
-
-        if (fallos.length > 0) {
-            const detalle = this.obtenerMensajeError(fallos[0].error);
-            const total = fallos.length;
-
-            this.mostrarError(`No se pudo guardar ${total} cambio${total === 1 ? '' : 's'}. ${detalle}`);
-        }
     },
 
-    ejecutarCambio: async function (idRol, { idMenu, idPermiso, activar }) {
-        const existente = this.indice().get(this.clave(idMenu, idPermiso));
-        let respuesta;
+    textoResumen: function (resumen = {}) {
+        const asignados = Number(resumen.creadas ?? 0) + Number(resumen.activadas ?? 0);
+        const quitados = Number(resumen.desactivadas ?? 0);
+        const partes = [];
 
-        if (!existente) {
-            if (!activar) return;
+        if (asignados > 0) partes.push(`${asignados} permiso${asignados === 1 ? '' : 's'} asignado${asignados === 1 ? '' : 's'}`);
+        if (quitados > 0) partes.push(`${quitados} quitado${quitados === 1 ? '' : 's'}`);
 
-            respuesta = await this.peticiones.crear({ id_permiso: idPermiso, id_rol: idRol, id_menu: idMenu });
-        } else {
-            if (Boolean(existente.activo) === activar) return;
-
-            respuesta = await this.peticiones.cambiarEstatus(existente.id_permiso_rol);
-        }
-
-        this.registrarAsignacion(idRol, respuesta.data);
-    },
-
-    registrarAsignacion: function (idRol, registro) {
-        if (!registro || this.estado.idRol !== idRol) return;
-
-        const posicion = this.estado.asignaciones.findIndex(
-            asignacion => Number(asignacion.id_permiso_rol) === Number(registro.id_permiso_rol),
-        );
-
-        if (posicion >= 0) {
-            this.estado.asignaciones[posicion] = registro;
-        } else {
-            this.estado.asignaciones.push(registro);
-        }
+        return partes.length > 0
+            ? `Cambios guardados: ${partes.join(' y ')}.`
+            : 'No había cambios que guardar.';
     },
 
     /* ------------------------------------------------------------------
@@ -327,8 +326,8 @@ const PermisosRoles = {
         },
     },
 
-    spinner: function () {
-        return '<svg class="mx-auto h-4 w-4 animate-spin text-blue-600" viewBox="0 0 24 24" fill="none" role="img" aria-label="Guardando"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path></svg>';
+    spinner: function (clase = 'h-4 w-4') {
+        return `<svg class="${clase} animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path></svg>`;
     },
 
     mostrarVacio: function (texto) {
@@ -343,6 +342,7 @@ const PermisosRoles = {
         const textos = this.config.textos;
 
         this.actualizarKpis();
+        this.actualizarBarra();
 
         if (!this.estado.idRol) {
             this.mostrarVacio(textos.sinRol);
@@ -364,24 +364,22 @@ const PermisosRoles = {
         }
 
         const indice = this.indice();
+        const bloqueado = this.estado.guardando ? 'disabled' : '';
+
         const encabezados = permisos.map(permiso => `
             <th scope="col" class="px-3 py-3 text-center align-bottom">
                 <div class="whitespace-nowrap text-xs font-semibold uppercase text-slate-500" title="${this.escaparHtml(permiso.descripcion ?? '')}">${this.escaparHtml(permiso.nombre_permiso)}</div>
-                <input type="checkbox" class="chk-columna mt-2 h-4 w-4 cursor-pointer accent-blue-600" data-permiso="${permiso.id_permiso}" aria-label="Aplicar ${this.escaparHtml(permiso.nombre_permiso)} a todas las opciones visibles" title="Aplica a las opciones visibles">
+                <input type="checkbox" class="chk-columna mt-2 h-4 w-4 cursor-pointer accent-blue-600 disabled:cursor-not-allowed" ${bloqueado} data-permiso="${permiso.id_permiso}" aria-label="Aplicar ${this.escaparHtml(permiso.nombre_permiso)} a todas las opciones visibles" title="Aplica a las opciones visibles">
             </th>`).join('');
 
         const cuerpo = filas.map(({ menu, profundidad }) => {
             const celdas = permisos.map(permiso => {
                 const clave = this.clave(menu.id_menu, permiso.id_permiso);
                 const etiqueta = `${this.escaparHtml(permiso.nombre_permiso)} en ${this.escaparHtml(menu.nombre_menu)}`;
+                const marcada = this.estaMarcado(menu.id_menu, permiso.id_permiso, indice) ? 'checked' : '';
+                const pendiente = this.estado.cambios.has(clave) ? 'bg-amber-50 ring-1 ring-inset ring-amber-200' : '';
 
-                if (this.estado.pendientes.has(clave)) {
-                    return `<td class="px-3 py-3 text-center">${this.spinner()}</td>`;
-                }
-
-                const marcada = this.estaAsignado(menu.id_menu, permiso.id_permiso, indice) ? 'checked' : '';
-
-                return `<td class="px-3 py-3 text-center"><input type="checkbox" class="chk-celda h-4 w-4 cursor-pointer accent-blue-600" data-menu="${menu.id_menu}" data-permiso="${permiso.id_permiso}" ${marcada} aria-label="${etiqueta}"></td>`;
+                return `<td class="px-3 py-3 text-center ${pendiente}"><input type="checkbox" class="chk-celda h-4 w-4 cursor-pointer accent-blue-600 disabled:cursor-not-allowed" ${bloqueado} data-menu="${menu.id_menu}" data-permiso="${permiso.id_permiso}" ${marcada} aria-label="${etiqueta}"></td>`;
             }).join('');
 
             const ruta = menu.ruta
@@ -395,7 +393,7 @@ const PermisosRoles = {
                     ${ruta}
                 </th>
                 ${celdas}
-                <td class="px-3 py-3 text-center"><input type="checkbox" class="chk-fila h-4 w-4 cursor-pointer accent-blue-600" data-menu="${menu.id_menu}" aria-label="Todos los permisos para ${this.escaparHtml(menu.nombre_menu)}"></td>
+                <td class="px-3 py-3 text-center"><input type="checkbox" class="chk-fila h-4 w-4 cursor-pointer accent-blue-600 disabled:cursor-not-allowed" ${bloqueado} data-menu="${menu.id_menu}" aria-label="Todos los permisos para ${this.escaparHtml(menu.nombre_menu)}"></td>
             </tr>`;
         }).join('');
 
@@ -414,7 +412,7 @@ const PermisosRoles = {
     },
 
     /**
-     * Casillas de fila y de columna: marcadas si todo está asignado,
+     * Casillas de fila y de columna: marcadas si todo está marcado,
      * indeterminadas si solo una parte lo está.
      */
     actualizarCasillasMaestras: function (filas, permisos, indice) {
@@ -424,7 +422,7 @@ const PermisosRoles = {
 
         $(matriz).find(casillaColumna).each((_, elemento) => {
             const idPermiso = Number($(elemento).data('permiso'));
-            const [marcada, parcial] = estadoDe(filas.map(({ menu }) => this.estaAsignado(menu.id_menu, idPermiso, indice)));
+            const [marcada, parcial] = estadoDe(filas.map(({ menu }) => this.estaMarcado(menu.id_menu, idPermiso, indice)));
 
             elemento.checked = marcada;
             elemento.indeterminate = parcial;
@@ -432,28 +430,63 @@ const PermisosRoles = {
 
         $(matriz).find(casillaFila).each((_, elemento) => {
             const idMenu = Number($(elemento).data('menu'));
-            const [marcada, parcial] = estadoDe(permisos.map(permiso => this.estaAsignado(idMenu, permiso.id_permiso, indice)));
+            const [marcada, parcial] = estadoDe(permisos.map(permiso => this.estaMarcado(idMenu, permiso.id_permiso, indice)));
 
             elemento.checked = marcada;
             elemento.indeterminate = parcial;
         });
     },
 
+    /** Barra inferior: contador de cambios y botones Guardar / Descartar. */
+    actualizarBarra: function () {
+        const s = this.config.selectores;
+        const textos = this.config.textos;
+        const total = this.estado.cambios.size;
+        const guardando = this.estado.guardando;
+
+        $(s.barra).toggleClass('hidden', !this.estado.idRol);
+        $(s.rol).prop('disabled', guardando);
+
+        $(s.contador)
+            .text(guardando ? textos.guardando : (total === 0 ? textos.sinCambios : `${total} cambio${total === 1 ? '' : 's'} sin guardar`))
+            .toggleClass('text-amber-700', total > 0 && !guardando)
+            .toggleClass('text-slate-500', total === 0 || guardando);
+
+        $(s.descartar).prop('disabled', total === 0 || guardando);
+
+        const $guardar = $(s.guardar);
+
+        if (guardando) {
+            if ($guardar.data('html-original') === undefined) {
+                $guardar.data('html-original', $guardar.html());
+            }
+
+            $guardar.html(`<span class="inline-flex items-center gap-2">${this.spinner()}${textos.guardando}</span>`);
+        } else if ($guardar.data('html-original') !== undefined) {
+            $guardar.html($guardar.data('html-original')).removeData('html-original');
+        }
+
+        $guardar.prop('disabled', total === 0 || guardando);
+    },
+
     actualizarKpis: function () {
         const s = this.config.selectores;
-        const asignados = this.estado.asignaciones.filter(asignacion => Boolean(asignacion.activo)).length;
 
-        $(s.kpiAsignados).text(this.estado.idRol ? asignados : '—');
+        // Asignaciones activas guardadas, ajustadas por los cambios pendientes.
+        const efectivos = this.estado.asignaciones.filter(asignacion => Boolean(asignacion.activo)).length
+            + [...this.estado.cambios.values()].reduce((suma, cambio) => suma + (cambio.activar ? 1 : -1), 0);
+
+        $(s.kpiAsignados).text(this.estado.idRol ? efectivos : '—');
         $(s.kpiMenus).text(this.estado.menus.filter(menu => Boolean(menu.activo)).length);
         $(s.kpiPermisos).text(this.permisosActivos().length);
     },
 
     /* ------------------------------------------------------------------
-     * Errores
+     * Avisos y errores
      * ------------------------------------------------------------------ */
 
     obtenerMensajeError: function (error) {
-        const errores = error?.responseJSON?.errors;
+        const errores = error?.responseJSON?.errors ?? error?.responseJSON?.errores;
         const primerError = errores ? Object.values(errores).flat()[0] : null;
 
         return primerError
@@ -463,15 +496,24 @@ const PermisosRoles = {
             ?? this.config.textos.errorGenerico;
     },
 
-    mostrarError: function (mensaje) {
-        const $error = $(this.config.selectores.error);
+    mostrarAviso: function (mensaje, tipo = 'error') {
+        const $aviso = $(this.config.selectores.aviso);
+        const clases = {
+            error: 'border-red-200 bg-red-50 text-red-700',
+            exito: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+        };
 
-        clearTimeout(this.estado.temporizadorError);
-        $error.text(mensaje).removeClass('hidden');
+        clearTimeout(this.estado.temporizadorAviso);
 
-        this.estado.temporizadorError = setTimeout(
-            () => $error.addClass('hidden').text(''),
-            this.config.mensajes.duracionErrorMs,
+        $aviso
+            .removeClass(`hidden ${clases.error} ${clases.exito}`)
+            .addClass(clases[tipo] ?? clases.error)
+            .attr('data-tipo', tipo)
+            .text(mensaje);
+
+        this.estado.temporizadorAviso = setTimeout(
+            () => $aviso.addClass('hidden').removeAttr('data-tipo').text(''),
+            this.config.mensajes.duracionAvisoMs,
         );
     },
 
@@ -483,14 +525,24 @@ const PermisosRoles = {
         const s = this.config.selectores;
 
         $(s.rol).on('change', function () {
-            PermisosRoles.cargarRol($(this).val());
+            const nuevo = $(this).val();
+
+            // No se pierde trabajo sin avisar: si hay cambios pendientes se pide confirmación.
+            if (PermisosRoles.estado.cambios.size > 0 && !window.confirm(PermisosRoles.config.textos.confirmarCambioRol)) {
+                $(this).val(PermisosRoles.estado.idRol ?? '');
+                return;
+            }
+
+            PermisosRoles.cargarRol(nuevo);
         });
 
         $(s.buscar).on('input', () => PermisosRoles.renderizar());
         $(s.soloAsignadas).on('change', () => PermisosRoles.renderizar());
+        $(s.guardar).on('click', () => PermisosRoles.guardar());
+        $(s.descartar).on('click', () => PermisosRoles.descartar());
 
         $(document).on('change', `${s.matriz} ${s.casilla}`, function () {
-            PermisosRoles.aplicar([{
+            PermisosRoles.marcar([{
                 idMenu: Number($(this).data('menu')),
                 idPermiso: Number($(this).data('permiso')),
                 activar: this.checked,
@@ -501,7 +553,7 @@ const PermisosRoles = {
             const idMenu = Number($(this).data('menu'));
             const activar = this.checked;
 
-            PermisosRoles.aplicar(
+            PermisosRoles.marcar(
                 PermisosRoles.permisosActivos().map(permiso => ({ idMenu, idPermiso: Number(permiso.id_permiso), activar })),
             );
         });
@@ -510,9 +562,17 @@ const PermisosRoles = {
             const idPermiso = Number($(this).data('permiso'));
             const activar = this.checked;
 
-            PermisosRoles.aplicar(
+            PermisosRoles.marcar(
                 PermisosRoles.filasVisibles().map(({ menu }) => ({ idMenu: Number(menu.id_menu), idPermiso, activar })),
             );
+        });
+
+        // Avisa al cerrar o recargar la página con cambios sin guardar.
+        window.addEventListener('beforeunload', evento => {
+            if (PermisosRoles.estado.cambios.size > 0) {
+                evento.preventDefault();
+                evento.returnValue = '';
+            }
         });
     },
 

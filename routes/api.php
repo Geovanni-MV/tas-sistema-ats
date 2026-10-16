@@ -20,7 +20,6 @@ use App\Http\Controllers\Api\Seguridad\PermisoController;
 use App\Http\Controllers\Api\Seguridad\PermisoRolController;
 use App\Http\Controllers\Api\Seguridad\RolController;
 use App\Http\Controllers\Api\Seguridad\UsuarioController;
-use App\Http\Controllers\Api\Seguridad\AuthController;
 /** */
 use Illuminate\Support\Facades\Route;
 
@@ -176,6 +175,7 @@ Route::prefix('/v1')->name('api.v1.')->group(function () {
         Route::prefix('permisos-roles')->name('permisos-roles.')->group(function () {
             Route::get('/', [PermisoRolController::class, 'obtenerDatos'])->name('obtener-datos');
             Route::post('/', [PermisoRolController::class, 'crear'])->name('crear');
+            Route::put('/sincronizar/{id_rol}', [PermisoRolController::class, 'sincronizar'])->name('sincronizar');
             Route::put('/{id_permiso_rol}', [PermisoRolController::class, 'actualizar'])->name('actualizar');
             Route::patch('/{id_permiso_rol}/estatus-activo', [PermisoRolController::class, 'cambiarEstatus'])->name('cambiar-estatus');
         });

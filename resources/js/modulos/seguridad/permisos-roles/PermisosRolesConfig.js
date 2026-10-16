@@ -10,8 +10,7 @@ export const crearPermisosRolesConfig = function () {
     return {
         urls: {
             obtener: $config.data('url-obtener'),
-            crear: $config.data('url-crear'),
-            cambiarEstatus: $config.data('url-cambiar-estatus'),
+            sincronizar: $config.data('url-sincronizar'),
             roles: $config.data('url-roles'),
             permisos: $config.data('url-permisos'),
             menu: $config.data('url-menu'),
@@ -21,29 +20,34 @@ export const crearPermisosRolesConfig = function () {
             matriz: '#matriz',
             vacio: '#matrix-empty',
             cargando: '#matrix-loading',
-            error: '#matrix-error',
+            aviso: '#matrix-aviso',
             rol: '#rol-select',
             buscar: '#matrix-search',
             soloAsignadas: '#solo-asignadas',
             kpiAsignados: '#kpi-asignados',
             kpiMenus: '#kpi-menus',
             kpiPermisos: '#kpi-permisos',
+            barra: '#barra-cambios',
+            contador: '#contador-cambios',
+            guardar: '#guardar-cambios',
+            descartar: '#descartar-cambios',
             casilla: '.chk-celda',
             casillaFila: '.chk-fila',
             casillaColumna: '.chk-columna',
         },
 
         mensajes: {
-            // Tiempo que permanece visible el aviso de error (ms).
-            duracionErrorMs: 7000,
-            // Peticiones simultáneas al aplicar cambios masivos (fila o columna).
-            loteMaximo: 5,
+            // Tiempo que permanece visible el aviso (ms).
+            duracionAvisoMs: 7000,
         },
 
         textos: {
             sinRol: 'Selecciona un rol para configurar sus permisos.',
             sinCatalogos: 'Registra al menos un permiso y una opción de menú activos para configurar el acceso.',
             sinCoincidencias: 'Ninguna opción de menú coincide con los filtros.',
+            sinCambios: 'Sin cambios pendientes',
+            guardando: 'Guardando...',
+            confirmarCambioRol: 'Hay cambios sin guardar. Si cambias de rol se perderán. ¿Deseas continuar?',
             errorGenerico: 'Ocurrió un error inesperado.',
         },
     };

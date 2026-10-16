@@ -10,7 +10,7 @@
         <section>
             <p class="text-xs font-semibold uppercase tracking-wider text-blue-600">Seguridad</p>
             <h1 class="mt-1 text-2xl font-bold text-slate-950">Roles y permisos</h1>
-            <p class="mt-1 text-sm text-slate-500">Define qué permisos tiene cada rol sobre las opciones del menú. Los cambios se guardan al marcar o desmarcar.</p>
+            <p class="mt-1 text-sm text-slate-500">Define qué permisos tiene cada rol sobre las opciones del menú. Marca las casillas y presiona «Guardar cambios» para aplicarlos todos juntos.</p>
             <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500">
                 <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-blue-500"></span><strong id="kpi-asignados" class="animate-pulse text-slate-800">—</strong> permisos asignados al rol</span>
                 <span class="text-slate-300">•</span>
@@ -20,7 +20,7 @@
             </div>
         </section>
 
-        <div id="matrix-error" role="alert" aria-live="assertive" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"></div>
+        <div id="matrix-aviso" role="status" aria-live="polite" class="hidden rounded-lg border px-4 py-3 text-sm font-medium"></div>
 
         <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div class="border-b border-slate-200 p-4 sm:p-5">
@@ -54,18 +54,27 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-1 border-t border-slate-200 px-5 py-4 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-                <span>Las casillas de columna y de fila aplican a todas las opciones y permisos visibles.</span>
+            <div class="flex flex-col gap-1.5 border-t border-slate-200 px-5 py-4 text-xs text-slate-500 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5">
+                <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded bg-amber-100 ring-1 ring-amber-300"></span>Cambio sin guardar</span>
+                <span>Las casillas de columna y de fila aplican a las opciones y permisos visibles.</span>
                 <span>Solo se muestran permisos y opciones de menú activos.</span>
             </div>
         </section>
+
+        {{-- Barra de guardado: queda fija al fondo de la pantalla mientras se desplaza la matriz --}}
+        <div id="barra-cambios" class="sticky bottom-4 z-30 hidden items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white/95 px-5 py-3 shadow-lg backdrop-blur [&:not(.hidden)]:flex">
+            <span id="contador-cambios" role="status" aria-live="polite" class="text-sm font-semibold text-slate-500">Sin cambios pendientes</span>
+            <div class="flex items-center gap-3">
+                <button id="descartar-cambios" type="button" disabled class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">Descartar</button>
+                <button id="guardar-cambios" type="button" disabled class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-blue-600">Guardar cambios</button>
+            </div>
+        </div>
     </div>
 </main>
 
 <div id="permisos-roles-config" class="hidden"
      data-url-obtener="{{ route('api.v1.seguridad.permisos-roles.obtener-datos') }}"
-     data-url-crear="{{ route('api.v1.seguridad.permisos-roles.crear') }}"
-     data-url-cambiar-estatus="{{ route('api.v1.seguridad.permisos-roles.cambiar-estatus', ['id_permiso_rol' => '__ID__']) }}"
+     data-url-sincronizar="{{ route('api.v1.seguridad.permisos-roles.sincronizar', ['id_rol' => '__ID__']) }}"
      data-url-roles="{{ route('api.v1.seguridad.roles.obtener-datos') }}"
      data-url-permisos="{{ route('api.v1.seguridad.permisos.obtener-datos') }}"
      data-url-menu="{{ route('api.v1.seguridad.menu.obtener-datos') }}"></div>
